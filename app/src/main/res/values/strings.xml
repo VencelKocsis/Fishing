@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Fishing</string>
+    <string name="some_error_message">Hiba</string>
 </resources>
