@@ -1,4 +1,15 @@
 <resources>
     <string name="app_name">Fishing</string>
     <string name="some_error_message">Hiba</string>
+    <string name="button_text_sign_out">Kijelentkezés</string>
+    <string name="textfield_label_email">E-mail</string>
+    <string name="textfield_label_password">Jelszó</string>
+    <string name="textfield_label_confirm_password">Jelszó megerősítése</string>
+    <string name="button_text_sign_up">Regisztráció</string>
+    <string name="button_text_sign_in">Bejelentkezés</string>
+    <string name="button_text_back_to_login">Vissza a bejelentkezéshez</string>
+    <string name="button_text_no_account">Nincs felhasználói fiókom</string>
+    <string name="successful_registration">Sikeres regisztráció</string>
+    <string name="successful_signout">Sikeres kijelentkezés</string>
+    <string name="successful_login">Sikeres bejelentkezés</string>
 </resources>

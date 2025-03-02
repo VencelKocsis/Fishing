@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "377242329447",
+    "project_id": "fishing-5037a",
+    "storage_bucket": "fishing-5037a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:377242329447:android:a744a07bbc19e6fb1c0fc2",
+        "android_client_info": {
+          "package_name": "hu.bme.aut.android.fishing"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRpSil0rWu6yUMguZx5Y2UmWmBGjJTKas"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
