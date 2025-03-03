@@ -138,6 +138,14 @@ fun AuthenticationScreen(
                         )
                     }
                 )
+                Button(
+                    onClick = { viewModel.onEvent(AuthenticationEvent.ForgotPasswordButtonClicked) },
+                    modifier = Modifier.padding(top = 8.dp)
+                        .width(TextFieldDefaults.MinWidth)
+                        .height(64.dp)
+                ) {
+                    Text(text = stringResource(id = R.string.button_text_forgot_password))
+                }
                 AnimatedVisibility(visible = state.isInRegisterMode) {
                     PasswordTextField(
                         value = state.confirmPassword,
@@ -151,7 +159,7 @@ fun AuthenticationScreen(
                         },
                         onDone = {},
                         modifier = Modifier
-                            .padding(bottom = 8.dp)
+                            .padding(bottom = 8.dp, top = 8.dp)
                             .width(TextFieldDefaults.MinWidth)
                             .height(64.dp),
                         isVisible = state.confirmPasswordVisibility,

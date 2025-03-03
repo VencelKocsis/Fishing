@@ -74,6 +74,26 @@ class AuthenticationViewModel @Inject constructor(
             AuthenticationEvent.ChangeMode -> {
                 _state.update { it.copy(isInRegisterMode = !_state.value.isInRegisterMode) }
             }
+            AuthenticationEvent.ForgotPasswordButtonClicked -> {
+                sendPasswordRecoveryEmail()
+            }
+        }
+    }
+
+    private fun sendPasswordRecoveryEmail() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                if(!authentication.isEmailValid(email)) {
+                    _uiEvent.send(
+                        UiEvent.Failure(UiText.StringResource(R.string.some_error_message))
+                    )
+                } else {
+                    authentication.sendRecoveryEmail(email)
+                    _uiEvent.send(UiEvent.Success(UiText.StringResource(R.string.password_recovery_email_sent)))
+                }
+            } catch (e: Exception) {
+                _uiEvent.send(UiEvent.Failure(e.toUiText()))
+            }
         }
     }
 
@@ -139,9 +159,7 @@ class AuthenticationViewModel @Inject constructor(
     }
 
     fun checkSignInState() = _state.update { it.copy(isLoggedIn = authentication.hasUser()) }
-
 }
-
 
 data class AuthenticationState(
     val email: String = "",
@@ -162,4 +180,5 @@ sealed class AuthenticationEvent {
     object AuthenticationButtonClicked : AuthenticationEvent()
     object LogoutButtonClicked : AuthenticationEvent()
     object ChangeMode : AuthenticationEvent()
+    object ForgotPasswordButtonClicked : AuthenticationEvent()
 }

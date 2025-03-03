@@ -12,4 +12,6 @@
     <string name="successful_registration">Sikeres regisztráció</string>
     <string name="successful_signout">Sikeres kijelentkezés</string>
     <string name="successful_login">Sikeres bejelentkezés</string>
+    <string name="password_recovery_email_sent">Jelszó módosító email elküldve</string>
+    <string name="button_text_forgot_password">Elfelejtetted a jelszavad?</string>
 </resources>
