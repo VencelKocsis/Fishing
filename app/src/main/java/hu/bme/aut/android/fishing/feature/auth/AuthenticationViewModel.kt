@@ -85,7 +85,7 @@ class AuthenticationViewModel @Inject constructor(
             try {
                 if(!authentication.isEmailValid(email)) {
                     _uiEvent.send(
-                        UiEvent.Failure(UiText.StringResource(R.string.some_error_message))
+                        UiEvent.Failure(UiText.StringResource(R.string.correct_email_required))
                     )
                 } else {
                     authentication.sendRecoveryEmail(email)
