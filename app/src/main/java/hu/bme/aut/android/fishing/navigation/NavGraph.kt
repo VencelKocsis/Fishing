@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import hu.bme.aut.android.fishing.feature.auth.AuthenticationScreen
+import hu.bme.aut.android.fishing.feature.catches.local_catches.LocalCatchesScreen
 
 @Composable
 fun NavGraph(
@@ -21,6 +22,9 @@ fun NavGraph(
     ) {
         composable(Screen.Authentication.route) {
             AuthenticationScreen()
+        }
+        composable(Screen.LocalCatches.route) {
+            LocalCatchesScreen()
         }
     }
 }
