@@ -1,6 +1,5 @@
 package hu.bme.aut.android.fishing.feature.catches.list_catches
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,22 +46,6 @@ class ListCatchesViewModel @Inject constructor(
                     }
                 }
             }
-
-            is ListCatchesEvent.SaveCatch -> {
-                saveCatch()
-            }
-
-            is ListCatchesEvent.ChangeName -> {
-                _state.update { it.copy(newCatchName = event.name) }
-            }
-
-            is ListCatchesEvent.ChangeWeight -> {
-                _state.update { it.copy(newCatchWeight = event.weight) }
-            }
-
-            is ListCatchesEvent.ChangeLength -> {
-                _state.update { it.copy(newCatchLength = event.length) }
-            }
         }
     }
 
@@ -92,24 +75,6 @@ class ListCatchesViewModel @Inject constructor(
     fun checkSignInState() {
         _state.update { it.copy(isLoggedIn = authentication.hasUser()) }
     }
-
-    fun saveCatch() {
-        viewModelScope.launch {
-            try {
-                catchesUseCases.addCatch(
-                    Catch(
-                        name = state.value.newCatchName,
-                        weight = state.value.newCatchWeight,
-                        length = state.value.newCatchLength,
-                        time = Date(System.currentTimeMillis())
-                    )
-                )
-            } catch (e: Exception) {
-                _state.update { it.copy(error = e, isError = true) }
-                _uiEvent.send(UiEvent.Failure(e.toUiText()))
-            }
-        }
-    }
 }
 
 data class ListCatchesState( //  represents the UI state
@@ -119,17 +84,10 @@ data class ListCatchesState( //  represents the UI state
     val error: Throwable? = null,
     val isError: Boolean = error != null,
     val catches: List<Catch> = emptyList(),
-    val newCatchName: String = "",
-    val newCatchWeight: String = "",
-    val newCatchLength: String = ""
 )
 
 sealed class ListCatchesEvent { // represents user actions (events)
 
     data class GlobalModeChanged(val switchState: Boolean) : ListCatchesEvent()
     data object FloatingActionButtonClicked : ListCatchesEvent()
-    data object SaveCatch: ListCatchesEvent()
-    data class ChangeName(val name: String) : ListCatchesEvent()
-    data class ChangeWeight(val weight: String) : ListCatchesEvent()
-    data class ChangeLength(val length: String) : ListCatchesEvent()
 }

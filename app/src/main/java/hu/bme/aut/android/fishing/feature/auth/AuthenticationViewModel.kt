@@ -34,8 +34,6 @@ class AuthenticationViewModel @Inject constructor(
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    // TODO after logging in navigate to the list of catches screen
-
     fun onEvent(event: AuthenticationEvent) {
         when (event) {
             is AuthenticationEvent.EmailChanged -> {
