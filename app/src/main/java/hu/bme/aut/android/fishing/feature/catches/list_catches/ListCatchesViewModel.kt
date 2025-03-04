@@ -1,5 +1,6 @@
 package hu.bme.aut.android.fishing.feature.catches.list_catches
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,7 +40,8 @@ class ListCatchesViewModel @Inject constructor(
             }
 
             is ListCatchesEvent.FloatingActionButtonClicked -> {
-                if(!authentication.hasUser()) {
+                // TODO add navigation to add catch screen
+                if (!authentication.hasUser()) {
                     viewModelScope.launch {
                         _uiEvent.send(UiEvent.Failure(UiText.StringResource(R.string.text_not_logged_in_add)))
                     }
@@ -69,7 +71,7 @@ class ListCatchesViewModel @Inject constructor(
             _state.update { it.copy(isLoading = true) }
             try {
                 checkSignInState()
-                if(state.value.isGlobalModeOn) {
+                if (state.value.isGlobalModeOn) {
                     catchesUseCases.catches().collect {
                         val catches = it.sortedBy { it.time }
                         _state.update { it.copy(isLoading = false, catches = catches) }
@@ -105,6 +107,7 @@ class ListCatchesViewModel @Inject constructor(
             } catch (e: Exception) {
                 _state.update { it.copy(error = e, isError = true) }
                 _uiEvent.send(UiEvent.Failure(e.toUiText()))
+            }
         }
     }
 }
@@ -129,5 +132,4 @@ sealed class ListCatchesEvent { // represents user actions (events)
     data class ChangeName(val name: String) : ListCatchesEvent()
     data class ChangeWeight(val weight: String) : ListCatchesEvent()
     data class ChangeLength(val length: String) : ListCatchesEvent()
-}
 }

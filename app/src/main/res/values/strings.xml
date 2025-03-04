@@ -16,4 +16,9 @@
     <string name="button_text_forgot_password">Elfelejtetted a jelszavad?</string>
     <string name="correct_email_required">Helyes email cím kötelező</string>
     <string name="text_not_logged_in_add">Bejelentkezve kell lenni a fogás hozzáadásához</string>
+    <string name="text_catches">Fogások</string>
+    <string name="text_own">Saját</string>
+    <string name="text_global">Összes</string>
+    <string name="text_not_logged_in_see">Be kell jelentkezni a fogások eléréséhez</string>
+    <string name="text_no_catches">Nincs fogás</string>
 </resources>

@@ -23,7 +23,7 @@ fun NavGraph(
         composable(Screen.Authentication.route) {
             AuthenticationScreen()
         }
-        composable(Screen.Catches.route) {
+        composable(Screen.ListCatches.route) {
             ListCatchesScreen()
         }
     }
