@@ -21,4 +21,5 @@
     <string name="text_global">Összes</string>
     <string name="text_not_logged_in_see">Be kell jelentkezni a fogások eléréséhez</string>
     <string name="text_no_catches">Nincs fogás</string>
+    <string name="text_add_catch">Fogás hozzáadása</string>
 </resources>

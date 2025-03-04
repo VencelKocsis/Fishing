@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import hu.bme.aut.android.fishing.feature.auth.AuthenticationScreen
+import hu.bme.aut.android.fishing.feature.catches.AddCatchScreen
 import hu.bme.aut.android.fishing.feature.catches.list_catches.ListCatchesScreen
 
 @Composable
@@ -24,7 +25,22 @@ fun NavGraph(
             AuthenticationScreen()
         }
         composable(Screen.ListCatches.route) {
-            ListCatchesScreen()
+            ListCatchesScreen(
+                onFabClick = {
+                    navController.navigate(Screen.AddCatch.route)
+                }
+            )
+        }
+        composable(Screen.AddCatch.route) {
+            AddCatchScreen(
+                onNavigateBack = {
+                    navController.popBackStack(
+                        route = Screen.ListCatches.route,
+                        inclusive = false
+                    )
+                    navController.navigate(Screen.ListCatches.route)
+                }
+            )
         }
     }
 }

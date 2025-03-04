@@ -45,6 +45,7 @@ import java.text.SimpleDateFormat
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListCatchesScreen(
+    onFabClick: () -> Unit,
     viewModel: ListCatchesViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -82,7 +83,8 @@ fun ListCatchesScreen(
         },
         floatingActionButton = {
             LargeFloatingActionButton(
-                onClick = { viewModel.onEvent(ListCatchesEvent.FloatingActionButtonClicked) },
+                //onClick = { viewModel.onEvent(ListCatchesEvent.FloatingActionButtonClicked) },
+                onClick = onFabClick,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
