@@ -11,9 +11,9 @@ sealed class BottomNavigationItems(
     val route: String,
     val icon: ImageVector
 ) {
-    data object ProfileItem : BottomNavigationItems(
-        title = "Profil",
-        route = Screen.Profile.route,
+    data object AuthenticationItem : BottomNavigationItems(
+        title = "Authentikáció",
+        route = Screen.Authentication.route,
         icon = Icons.Default.Person
     )
     data object ListCatchesItem: BottomNavigationItems(
@@ -24,7 +24,7 @@ sealed class BottomNavigationItems(
 
     companion object {
         val items = listOf(
-            ProfileItem,
+            AuthenticationItem,
             ListCatchesItem
         )
     }

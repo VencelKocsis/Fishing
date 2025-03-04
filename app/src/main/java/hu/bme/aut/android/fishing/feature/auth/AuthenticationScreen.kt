@@ -92,7 +92,7 @@ fun AuthenticationScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (state.isLoggedIn) {
-                /*Button(
+                Button(
                     shape = RoundedCornerShape(8.dp),
                     onClick = { viewModel.onEvent(AuthenticationEvent.LogoutButtonClicked) },
                     modifier = Modifier
@@ -101,7 +101,7 @@ fun AuthenticationScreen(
                         .height(64.dp)
                 ) {
                     Text(text = stringResource(R.string.button_text_sign_out))
-                }*/
+                }
 
             } else {
                 EmailTextField(
