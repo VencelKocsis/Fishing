@@ -36,7 +36,7 @@ fun NavGraph(
                 onNavigateBack = {
                     navController.popBackStack(
                         route = Screen.ListCatches.route,
-                        inclusive = false
+                        inclusive = true
                     )
                     navController.navigate(Screen.ListCatches.route)
                 }

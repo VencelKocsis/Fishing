@@ -35,6 +35,9 @@ class ListCatchesViewModel @Inject constructor(
         when (event) {
             is ListCatchesEvent.GlobalModeChanged -> {
                 _state.update { it.copy(isGlobalModeOn = event.switchState) }
+                // TODO nem tölt be a fogás lista bejelentkezés után, csak ha visszalépek az AddCatchScreen-ről
+                // TODO ha a felhasználó bejelentkezve indítja el az appot akkor betölti a listát,
+                // ha elindítja az appot és bejelentkezik utánna, akkor nem tölti be a listát
                 loadCatches()
             }
 

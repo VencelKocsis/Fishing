@@ -23,6 +23,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hu.bme.aut.android.fishing.R
@@ -47,9 +48,7 @@ fun AddCatchScreen(
             when (event) {
                 is UiEvent.Success -> {
                     scope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = event.message?.asString(context) ?: ""
-                        )
+                        onNavigateBack()
                     }
                 }
 
@@ -90,7 +89,7 @@ fun AddCatchScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding),
+                    .padding(8.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CatchEditor(

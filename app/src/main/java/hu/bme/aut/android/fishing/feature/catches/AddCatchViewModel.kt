@@ -1,6 +1,5 @@
 package hu.bme.aut.android.fishing.feature.catches
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,11 +29,6 @@ class AddCatchViewModel @Inject constructor(
 
     fun onEvent(event: AddCatchEvent) {
         when (event) {
-            is AddCatchEvent.SaveFloatingActionButtonClicked -> {
-                Log.d("AddCatchViewModel", "SaveFloatingActionButtonClicked event received")
-                saveCatch()
-            }
-
             is AddCatchEvent.ChangeName -> {
                 _state.update { it.copy(newCatchName = event.name) }
             }
@@ -46,12 +40,15 @@ class AddCatchViewModel @Inject constructor(
             is AddCatchEvent.ChangeLength -> {
                 _state.update { it.copy(newCatchLength = event.length) }
             }
+
+            AddCatchEvent.SaveFloatingActionButtonClicked -> {
+                saveCatch()
+            }
         }
     }
 
     fun saveCatch() {
         viewModelScope.launch {
-            Log.d("AddCatchViewModel", "saveCatch() called")
             try {
                 catchesUseCases.addCatch(
                     Catch(
@@ -61,6 +58,7 @@ class AddCatchViewModel @Inject constructor(
                         time = Date(System.currentTimeMillis())
                     )
                 )
+                _uiEvent.send(UiEvent.Success())
             } catch (e: Exception) {
                 _state.update { it.copy(error = e, isError = true) }
                 _uiEvent.send(UiEvent.Failure(e.toUiText()))
@@ -70,8 +68,6 @@ class AddCatchViewModel @Inject constructor(
 }
 
 data class AddCatchState(
-    val isLoggedIn: Boolean = false,
-    val isLoading: Boolean = false,
     val error: Throwable? = null,
     val isError: Boolean = error != null,
     val newCatchName: String = "",
@@ -81,7 +77,7 @@ data class AddCatchState(
 
 sealed class AddCatchEvent {
 
-    data object SaveFloatingActionButtonClicked : AddCatchEvent()
+    object SaveFloatingActionButtonClicked : AddCatchEvent()
     data class ChangeName(val name: String) : AddCatchEvent()
     data class ChangeWeight(val weight: String) : AddCatchEvent()
     data class ChangeLength(val length: String) : AddCatchEvent()
