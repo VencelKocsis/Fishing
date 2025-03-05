@@ -39,7 +39,6 @@ class ListCatchesViewModel @Inject constructor(
             }
 
             is ListCatchesEvent.FloatingActionButtonClicked -> {
-                // TODO add navigation to add catch screen
                 if (!authentication.hasUser()) {
                     viewModelScope.launch {
                         _uiEvent.send(UiEvent.Failure(UiText.StringResource(R.string.text_not_logged_in_add)))

@@ -1,5 +1,6 @@
 package hu.bme.aut.android.fishing.feature.catches
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +31,7 @@ class AddCatchViewModel @Inject constructor(
     fun onEvent(event: AddCatchEvent) {
         when (event) {
             is AddCatchEvent.SaveFloatingActionButtonClicked -> {
+                Log.d("AddCatchViewModel", "SaveFloatingActionButtonClicked event received")
                 saveCatch()
             }
 
@@ -49,6 +51,7 @@ class AddCatchViewModel @Inject constructor(
 
     fun saveCatch() {
         viewModelScope.launch {
+            Log.d("AddCatchViewModel", "saveCatch() called")
             try {
                 catchesUseCases.addCatch(
                     Catch(

@@ -1,5 +1,6 @@
 package hu.bme.aut.android.fishing.feature.catches
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -25,10 +27,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hu.bme.aut.android.fishing.R
 import hu.bme.aut.android.fishing.ui.common.CatchAppBar
+import hu.bme.aut.android.fishing.ui.common.CatchEditor
 import hu.bme.aut.android.fishing.util.UiEvent
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun AddCatchScreen(
     viewModel: AddCatchViewModel = hiltViewModel(),
@@ -83,8 +86,37 @@ fun AddCatchScreen(
         Column(
             modifier = Modifier.padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
-        ){
-            Text(text = "Add Catch Screen")
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                CatchEditor(
+                    nameValue = state.newCatchName,
+                    nameValueChange = { viewModel.onEvent(AddCatchEvent.ChangeName(it)) },
+                    weightValue = state.newCatchWeight,
+                    weightValueChange = { viewModel.onEvent(AddCatchEvent.ChangeWeight(it)) },
+                    lengthValue = state.newCatchLength,
+                    lengthValueChange = { viewModel.onEvent(AddCatchEvent.ChangeLength(it)) },
+                    modifier = Modifier
+                )
+            }
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
