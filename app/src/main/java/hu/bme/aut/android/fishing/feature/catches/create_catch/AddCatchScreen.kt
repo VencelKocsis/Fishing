@@ -1,4 +1,4 @@
-package hu.bme.aut.android.fishing.feature.catches
+package hu.bme.aut.android.fishing.feature.catches.create_catch
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,8 +12,6 @@ import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -74,7 +72,7 @@ fun AddCatchScreen(
         },
         floatingActionButton = {
             LargeFloatingActionButton(
-                onClick = { viewModel.onEvent(AddCatchEvent.SaveFloatingActionButtonClicked) },
+                onClick = { viewModel.onEvent(AddCatchEvent.SaveCatch) },
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
             ) {

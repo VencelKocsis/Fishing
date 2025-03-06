@@ -1,0 +1,153 @@
+package hu.bme.aut.android.fishing.feature.catches.check_catch
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import hu.bme.aut.android.fishing.R
+import hu.bme.aut.android.fishing.ui.common.CatchAppBar
+import hu.bme.aut.android.fishing.ui.common.CatchEditor
+import hu.bme.aut.android.fishing.util.UiEvent
+import kotlinx.coroutines.launch
+
+@ExperimentalComposeUiApi
+@ExperimentalMaterial3Api
+@Composable
+fun CheckCatchScreen(
+    onNavigateBack: () -> Unit,
+    viewModel: CheckCatchViewModel = hiltViewModel()
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val hostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = true) {
+        viewModel.uiEvent.collect { uiEvent ->
+            when (uiEvent) {
+                is UiEvent.Success -> {
+                    onNavigateBack()
+                }
+
+                is UiEvent.Failure -> {
+                    scope.launch {
+                        hostState.showSnackbar(uiEvent.message.asString(context))
+                    }
+                }
+            }
+        }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState) },
+        topBar = {
+            if (!state.isLoadingCatch) {
+                CatchAppBar(
+                    title = if (state.isEditingCatch) {
+                        stringResource(id = R.string.editing_catch)
+                    } else state.catch?.name ?: "Fogás",
+                    onNavigateBack = onNavigateBack,
+                    actions = {
+                        IconButton(
+                            onClick = {
+                                if (state.isEditingCatch) {
+                                    viewModel.onEvent(CheckCatchEvent.StopEditingCatch)
+                                } else {
+                                    viewModel.onEvent(CheckCatchEvent.EditingCatch)
+                                }
+                            }
+                        )  {
+                            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                        }
+                        IconButton(
+                            onClick = {
+                                viewModel.onEvent(CheckCatchEvent.DeleteCatch)
+                            }
+                        )  {
+                            Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                        }
+                    }
+                )
+            }
+        },
+        floatingActionButton = {
+            if (state.isEditingCatch) {
+                LargeFloatingActionButton(
+                    onClick = {
+                        viewModel.onEvent(CheckCatchEvent.UpdateCatch)
+                    },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Icon(imageVector = Icons.Default.Done, contentDescription = null)
+                }
+            }
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentAlignment = Alignment.Center
+        ) {
+            if (state.isLoadingCatch) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.secondaryContainer
+                )
+            } else {
+                val catch = state.catch
+                CatchEditor(
+                    nameValue = catch!!.name,
+                    nameValueChange = { viewModel.onEvent(CheckCatchEvent.ChangeName(it)) },
+                    weightValue = catch.weight,
+                    weightValueChange = { viewModel.onEvent(CheckCatchEvent.ChangeWeight(it)) },
+                    lengthValue = catch.length,
+                    lengthValueChange = { viewModel.onEvent(CheckCatchEvent.ChangeLength(it)) },
+                    modifier = Modifier,
+                    enabled = state.isEditingCatch
+                )
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

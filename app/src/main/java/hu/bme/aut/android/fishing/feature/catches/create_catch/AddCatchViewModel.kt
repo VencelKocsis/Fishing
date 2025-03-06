@@ -1,4 +1,4 @@
-package hu.bme.aut.android.fishing.feature.catches
+package hu.bme.aut.android.fishing.feature.catches.create_catch
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -41,7 +41,7 @@ class AddCatchViewModel @Inject constructor(
                 _state.update { it.copy(newCatchLength = event.length) }
             }
 
-            AddCatchEvent.SaveFloatingActionButtonClicked -> {
+            AddCatchEvent.SaveCatch -> {
                 saveCatch()
             }
         }
@@ -77,7 +77,7 @@ data class AddCatchState(
 
 sealed class AddCatchEvent {
 
-    object SaveFloatingActionButtonClicked : AddCatchEvent()
+    object SaveCatch : AddCatchEvent()
     data class ChangeName(val name: String) : AddCatchEvent()
     data class ChangeWeight(val weight: String) : AddCatchEvent()
     data class ChangeLength(val length: String) : AddCatchEvent()

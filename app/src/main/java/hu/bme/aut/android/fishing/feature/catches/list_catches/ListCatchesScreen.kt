@@ -1,5 +1,6 @@
 package hu.bme.aut.android.fishing.feature.catches.list_catches
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -45,6 +46,7 @@ import java.text.SimpleDateFormat
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListCatchesScreen(
+    onListItemClick: (String) -> Unit,
     onFabClick: () -> Unit,
     viewModel: ListCatchesViewModel = hiltViewModel()
 ) {
@@ -158,7 +160,8 @@ fun ListCatchesScreen(
                                             Text(
                                                 text = strDate
                                             )
-                                        }
+                                        },
+                                        modifier = Modifier.clickable(onClick = { onListItemClick(state.catches[i].id) })
                                     )
                                     if (i < state.catches.size - 1) {
                                         HorizontalDivider(

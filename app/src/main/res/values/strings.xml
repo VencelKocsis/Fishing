@@ -25,4 +25,6 @@
     <string name="catch_name">Fogás neve</string>
     <string name="catch_weight">Tömeg (kg)</string>
     <string name="catch_length">Hossz (cm)</string>
+    <string name="catch_not_found">Nem található a fogás</string>
+    <string name="editing_catch">Fogás szerkesztése</string>
 </resources>
