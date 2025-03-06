@@ -81,6 +81,7 @@ class CheckCatchViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoadingCatch = true) }
             try {
+                // TODO pass id from navigation throws error
                 Log.d("CheckCatchViewModel", "Loading catch: ${savedState.get<String>("catchId")}")
                 val catchId = savedState.get<String>("catchId") ?: throw Exception("No catch id")
                 val catch = catchesUseCases.getCatchById(catchId)
