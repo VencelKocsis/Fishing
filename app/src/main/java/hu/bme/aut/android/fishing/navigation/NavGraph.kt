@@ -55,7 +55,7 @@ fun NavGraph(
             route = Screen.CheckCatch.route,
             arguments = listOf(
                 navArgument("id") {
-                    type = NavType.IntType
+                    type = NavType.StringType
                 }
             )
         ) {

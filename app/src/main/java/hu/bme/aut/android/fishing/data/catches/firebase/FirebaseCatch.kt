@@ -1,15 +1,8 @@
 package hu.bme.aut.android.fishing.data.catches.firebase
 
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.ServerTimestamp
 import hu.bme.aut.android.fishing.domain.model.Catch
-import kotlinx.datetime.toKotlinLocalDateTime
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
-import kotlinx.datetime.toJavaInstant
 import java.util.Date
 
 data class FirebaseCatch(
@@ -17,7 +10,7 @@ data class FirebaseCatch(
     val name: String = "",
     val weight: String = "",
     val length: String = "",
-    val dueDate: Timestamp = Timestamp.now(),
+    //@ServerTimestamp val dueDate: Date? = null,
     // TODO species: Species = Species.NONE
     // TODO val imageURL: String = "",
     val userId: String = ""
@@ -28,10 +21,7 @@ fun FirebaseCatch.asCatch() = Catch(
     name = name,
     weight = weight,
     length = length,
-    dueDate = LocalDateTime
-        .ofInstant(Instant.ofEpochSecond(dueDate.seconds), ZoneId.systemDefault())
-        .toKotlinLocalDateTime()
-        .date,
+    //dueDate = dueDate ?: Date(),
     // TODO species = species,
     // TODO imageURL = imageURL,
     userId = userId
@@ -42,7 +32,7 @@ fun Catch.asFirebaseCatch() = FirebaseCatch(
     name = name,
     weight = weight,
     length = length,
-    dueDate = Timestamp(Date.from(dueDate.atStartOfDayIn(TimeZone.currentSystemDefault()).toJavaInstant())),
+    //dueDate = dueDate,
     // TODO species = species,
     // TODO imageURL = imageURL,
     userId = userId

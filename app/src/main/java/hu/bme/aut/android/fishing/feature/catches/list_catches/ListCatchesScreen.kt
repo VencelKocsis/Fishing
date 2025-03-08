@@ -1,5 +1,7 @@
 package hu.bme.aut.android.fishing.feature.catches.list_catches
 
+import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,7 +44,9 @@ import hu.bme.aut.android.fishing.util.UiEvent
 import kotlinx.coroutines.launch
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+import java.util.Locale
 
+@SuppressLint("SimpleDateFormat")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListCatchesScreen(
@@ -151,16 +155,14 @@ fun ListCatchesScreen(
                                         },
                                         headlineContent = {
                                             Text(text = state.catches[i].name)
+                                            Log.d("ListCatchesScreen", "OnListItemClick: ${state.catches[i]}")
                                         },
-                                        supportingContent = {
-                                            val dateFormat: DateFormat =
-                                                SimpleDateFormat("yyyy.MM.dd hh:mm:ss")
-                                            val strDate: String =
-                                                dateFormat.format(state.catches[i].dueDate)
+                                        /*supportingContent = {
+                                            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                                             Text(
-                                                text = strDate
+                                                text = dateFormat.format(state.catches[i].dueDate)
                                             )
-                                        },
+                                        },*/
                                         modifier = Modifier.clickable(onClick = { onListItemClick(state.catches[i].id) })
                                     )
                                     if (i < state.catches.size - 1) {
