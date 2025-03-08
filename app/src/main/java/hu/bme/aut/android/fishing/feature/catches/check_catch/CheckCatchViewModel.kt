@@ -6,11 +6,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.bme.aut.android.fishing.R
-import hu.bme.aut.android.fishing.data.catches.model.Catch
 import hu.bme.aut.android.fishing.domain.usecases.catches.AllCatchesUseCases
+import hu.bme.aut.android.fishing.ui.model.CatchUi
 import hu.bme.aut.android.fishing.ui.model.UiText
+import hu.bme.aut.android.fishing.ui.model.asCatch
+import hu.bme.aut.android.fishing.ui.model.asCatchUi
 import hu.bme.aut.android.fishing.ui.model.toUiText
 import hu.bme.aut.android.fishing.util.UiEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +43,6 @@ class CheckCatchViewModel @Inject constructor(
                         isEditingCatch = true
                     )
                 }
-                Log.d("CheckCatchViewModel", "Editing catch: ${state.value.catch}")
             }
 
             CheckCatchEvent.StopEditingCatch -> {
@@ -48,19 +51,27 @@ class CheckCatchViewModel @Inject constructor(
                         isEditingCatch = false
                     )
                 }
-                Log.d("CheckCatchViewModel", "Stop editing catch: ${state.value.catch}")
             }
 
             is CheckCatchEvent.ChangeName -> {
-                _state.update { it.copy(newCatchName = event.name) }
+                val newValue = event.name
+                _state.update { it.copy(
+                    catch = it.catch?.copy(name = newValue)
+                ) }
             }
 
             is CheckCatchEvent.ChangeWeight -> {
-                _state.update { it.copy(newCatchWeight = event.weight) }
+                val newValue = event.weight
+                _state.update { it.copy(
+                    catch = it.catch?.copy(weight = newValue)
+                ) }
             }
 
             is CheckCatchEvent.ChangeLength -> {
-                _state.update { it.copy(newCatchLength = event.length) }
+                val newValue = event.length
+                _state.update { it.copy(
+                    catch = it.catch?.copy(length = newValue)
+                ) }
             }
 
             CheckCatchEvent.UpdateCatch -> {
@@ -78,31 +89,15 @@ class CheckCatchViewModel @Inject constructor(
     }
 
     private fun load() {
+        val catchId = checkNotNull<String>(savedState["id"])
         viewModelScope.launch {
             _state.update { it.copy(isLoadingCatch = true) }
             try {
-                // TODO pass id from navigation throws error
-                Log.d("CheckCatchViewModel", "Loading catch: ${savedState.get<String>("catchId")}")
-                val catchId = savedState.get<String>("catchId") ?: throw Exception("No catch id")
-                val catch = catchesUseCases.getCatchById(catchId)
-
-                if (catch != null) {
-                    _state.update {
-                        it.copy(
-                            catch = catch,
-                            newCatchName = catch.name,
-                            newCatchWeight = catch.weight,
-                            newCatchLength = catch.length,
-                            isLoadingCatch = false
-                        )
-                    }
-                } else {
-                    _uiEvent.send(UiEvent.Failure(UiText.StringResource(R.string.catch_not_found)))
-                    _state.update { it.copy(isLoadingCatch = false) }
+                CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
+                    val catch = catchesUseCases.getCatchById(catchId)!!.asCatchUi()
+                    _state.update { it.copy(isLoadingCatch = false, catch = catch) }
                 }
-
             } catch (e : Exception) {
-                _state.update { it.copy(isLoadingCatch = false, error = e) }
                 _uiEvent.send(UiEvent.Failure(e.toUiText()))
             }
         }
@@ -111,23 +106,10 @@ class CheckCatchViewModel @Inject constructor(
     private fun updateCatch() {
         viewModelScope.launch {
             try {
-                Log.d("CheckCatchViewModel", "Updating catch: ${state.value.catch}")
-                val currentCatch = _state.value.catch ?: throw Exception("No catch")
-
-                val updatedCatch = Catch(
-                    id = currentCatch.id, // Ensure the ID remains the same
-                    name = state.value.newCatchName,
-                    weight = state.value.newCatchWeight,
-                    length = state.value.newCatchLength,
-                    time = currentCatch.time, // Preserve the original time
-                    userId = currentCatch.userId // Keep the same user ID
-                )
-
-                catchesUseCases.updateCatch(updatedCatch)
-
-                _state.update { it.copy(catch = updatedCatch, isEditingCatch = false) }
+                CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
+                    catchesUseCases.updateCatch(state.value.catch!!.asCatch())
+                }
                 _uiEvent.send(UiEvent.Success())
-
             } catch (e : Exception) {
                 _uiEvent.send(UiEvent.Failure(e.toUiText()))
             }
@@ -137,8 +119,9 @@ class CheckCatchViewModel @Inject constructor(
     private fun deleteCatch() {
         viewModelScope.launch {
             try {
-                val catchId = state.value.catch?.id ?: throw Exception("No catch id")
-                catchesUseCases.deleteCatch(catchId)
+                CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
+                    catchesUseCases.deleteCatch(state.value.catch!!.id)
+                }
                 _uiEvent.send(UiEvent.Success())
             } catch (e : Exception) {
                 _uiEvent.send(UiEvent.Failure(e.toUiText()))
@@ -148,10 +131,7 @@ class CheckCatchViewModel @Inject constructor(
 }
 
 data class CheckCatchState(
-    val newCatchName: String = "",
-    val newCatchWeight: String = "",
-    val newCatchLength: String = "",
-    val catch: Catch? = null,
+    val catch: CatchUi? = null,
     val isLoadingCatch: Boolean = false,
     val isEditingCatch: Boolean = false,
     val error: Throwable? = null

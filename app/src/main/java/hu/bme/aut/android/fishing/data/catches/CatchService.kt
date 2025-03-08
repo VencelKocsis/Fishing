@@ -1,6 +1,6 @@
 package hu.bme.aut.android.fishing.data.catches
 
-import hu.bme.aut.android.fishing.data.catches.model.Catch
+import hu.bme.aut.android.fishing.domain.model.Catch
 import kotlinx.coroutines.flow.Flow
 
 interface CatchService {

@@ -156,7 +156,7 @@ fun ListCatchesScreen(
                                             val dateFormat: DateFormat =
                                                 SimpleDateFormat("yyyy.MM.dd hh:mm:ss")
                                             val strDate: String =
-                                                dateFormat.format(state.catches[i].time)
+                                                dateFormat.format(state.catches[i].dueDate)
                                             Text(
                                                 text = strDate
                                             )

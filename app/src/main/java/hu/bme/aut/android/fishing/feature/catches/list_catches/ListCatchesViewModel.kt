@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.bme.aut.android.fishing.R
-import hu.bme.aut.android.fishing.data.catches.model.Catch
 import hu.bme.aut.android.fishing.domain.usecases.auth.AllAuthenticationUseCases
 import hu.bme.aut.android.fishing.domain.usecases.catches.AllCatchesUseCases
 import hu.bme.aut.android.fishing.ui.model.UiText
@@ -16,8 +15,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Date
 import javax.inject.Inject
+import hu.bme.aut.android.fishing.ui.model.CatchUi
+import hu.bme.aut.android.fishing.ui.model.asCatchUi
 
 @HiltViewModel
 class ListCatchesViewModel @Inject constructor(
@@ -58,12 +58,12 @@ class ListCatchesViewModel @Inject constructor(
                 checkSignInState()
                 if (state.value.isGlobalModeOn) {
                     catchesUseCases.catches().collect {
-                        val catches = it.sortedBy { it.time }
+                        val catches = it.sortedBy { it.dueDate }.map { it.asCatchUi() }
                         _state.update { it.copy(isLoading = false, catches = catches) }
                     }
                 } else {
                     catchesUseCases.userCatches().collect {
-                        val catches = it.sortedBy { it.time }
+                        val catches = it.sortedBy { it.dueDate }.map { it.asCatchUi() }
                         _state.update { it.copy(isLoading = false, catches = catches) }
                     }
                 }
@@ -85,7 +85,7 @@ data class ListCatchesState( //  represents the UI state
     val isLoading: Boolean = false,
     val error: Throwable? = null,
     val isError: Boolean = error != null,
-    val catches: List<Catch> = emptyList(),
+    val catches: List<CatchUi> = emptyList(),
 )
 
 sealed class ListCatchesEvent { // represents user actions (events)

@@ -91,11 +91,11 @@ fun AddCatchScreen(
                 contentAlignment = Alignment.Center
             ) {
                 CatchEditor(
-                    nameValue = state.newCatchName,
+                    nameValue = state.catch.name,
                     nameValueChange = { viewModel.onEvent(AddCatchEvent.ChangeName(it)) },
-                    weightValue = state.newCatchWeight,
+                    weightValue = state.catch.weight,
                     weightValueChange = { viewModel.onEvent(AddCatchEvent.ChangeWeight(it)) },
-                    lengthValue = state.newCatchLength,
+                    lengthValue = state.catch.length,
                     lengthValueChange = { viewModel.onEvent(AddCatchEvent.ChangeLength(it)) },
                     modifier = Modifier
                 )

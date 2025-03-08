@@ -3,17 +3,19 @@ package hu.bme.aut.android.fishing.feature.catches.create_catch
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import hu.bme.aut.android.fishing.data.catches.model.Catch
 import hu.bme.aut.android.fishing.domain.usecases.catches.AllCatchesUseCases
+import hu.bme.aut.android.fishing.ui.model.CatchUi
+import hu.bme.aut.android.fishing.ui.model.asCatch
 import hu.bme.aut.android.fishing.ui.model.toUiText
 import hu.bme.aut.android.fishing.util.UiEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -30,15 +32,24 @@ class AddCatchViewModel @Inject constructor(
     fun onEvent(event: AddCatchEvent) {
         when (event) {
             is AddCatchEvent.ChangeName -> {
-                _state.update { it.copy(newCatchName = event.name) }
+                val newValue = event.name
+                _state.update { it.copy(
+                    catch = it.catch.copy(name = newValue)
+                ) }
             }
 
             is AddCatchEvent.ChangeWeight -> {
-                _state.update { it.copy(newCatchWeight = event.weight) }
+                val newValue = event.weight
+                _state.update { it.copy(
+                    catch = it.catch.copy(weight = newValue)
+                ) }
             }
 
             is AddCatchEvent.ChangeLength -> {
-                _state.update { it.copy(newCatchLength = event.length) }
+                val newValue = event.length
+                _state.update { it.copy(
+                    catch = it.catch.copy(length = newValue)
+                ) }
             }
 
             AddCatchEvent.SaveCatch -> {
@@ -50,14 +61,9 @@ class AddCatchViewModel @Inject constructor(
     fun saveCatch() {
         viewModelScope.launch {
             try {
-                catchesUseCases.addCatch(
-                    Catch(
-                        name = state.value.newCatchName,
-                        weight = state.value.newCatchWeight,
-                        length = state.value.newCatchLength,
-                        time = Date(System.currentTimeMillis())
-                    )
-                )
+                CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
+                    catchesUseCases.addCatch(state.value.catch.asCatch())
+                }
                 _uiEvent.send(UiEvent.Success())
             } catch (e: Exception) {
                 _state.update { it.copy(error = e, isError = true) }
@@ -70,9 +76,7 @@ class AddCatchViewModel @Inject constructor(
 data class AddCatchState(
     val error: Throwable? = null,
     val isError: Boolean = error != null,
-    val newCatchName: String = "",
-    val newCatchWeight: String = "",
-    val newCatchLength: String = ""
+    val catch: CatchUi = CatchUi()
 )
 
 sealed class AddCatchEvent {

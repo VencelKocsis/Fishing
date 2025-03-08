@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import hu.bme.aut.android.fishing.data.catches.CatchService
-import hu.bme.aut.android.fishing.data.catches.FirebaseCatchService
+import hu.bme.aut.android.fishing.data.catches.firebase.FirebaseCatchService
 import javax.inject.Singleton
 
 @Module
