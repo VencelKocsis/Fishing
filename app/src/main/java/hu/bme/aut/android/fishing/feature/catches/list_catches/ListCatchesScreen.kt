@@ -1,10 +1,11 @@
 package hu.bme.aut.android.fishing.feature.catches.list_catches
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -89,7 +90,6 @@ fun ListCatchesScreen(
         },
         floatingActionButton = {
             LargeFloatingActionButton(
-                //onClick = { viewModel.onEvent(ListCatchesEvent.FloatingActionButtonClicked) },
                 onClick = onFabClick,
                 containerColor = MaterialTheme.colorScheme.primary,
                 contentColor = MaterialTheme.colorScheme.onPrimary
@@ -155,7 +155,20 @@ fun ListCatchesScreen(
                                         },
                                         headlineContent = {
                                             Text(text = state.catches[i].name)
-                                            Log.d("ListCatchesScreen", "OnListItemClick: ${state.catches[i]}")
+                                        },
+                                        supportingContent = {
+                                            Row(
+                                                modifier = Modifier.padding(top = 5.dp),
+                                                horizontalArrangement = Arrangement.SpaceBetween
+                                            ) {
+                                                Text(
+                                                    text = stringResource(
+                                                        id = R.string.text_weight_length,
+                                                        state.catches[i].weight,
+                                                        state.catches[i].length
+                                                    )
+                                                )
+                                            }
                                         },
                                         /*supportingContent = {
                                             val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
