@@ -1,8 +1,10 @@
 package hu.bme.aut.android.fishing.feature.catches.create_catch
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import hu.bme.aut.android.fishing.domain.usecases.auth.AllAuthenticationUseCases
 import hu.bme.aut.android.fishing.domain.usecases.catches.AllCatchesUseCases
 import hu.bme.aut.android.fishing.ui.model.CatchUi
 import hu.bme.aut.android.fishing.ui.model.asCatch
@@ -20,6 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddCatchViewModel @Inject constructor(
+    private val authentication: AllAuthenticationUseCases,
     private val catchesUseCases: AllCatchesUseCases
 ) : ViewModel() {
 
@@ -53,6 +56,10 @@ class AddCatchViewModel @Inject constructor(
             }
 
             AddCatchEvent.SaveCatch -> {
+                val userId = authentication.currentUserId()
+                _state.update { it.copy(
+                    catch = it.catch.copy(userId = userId ?: "UNKNOWN_USER")
+                ) }
                 saveCatch()
             }
         }
