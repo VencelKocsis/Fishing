@@ -8,6 +8,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.bme.aut.android.fishing.R
 import hu.bme.aut.android.fishing.domain.usecases.catches.AllCatchesUseCases
 import hu.bme.aut.android.fishing.ui.model.CatchUi
+import hu.bme.aut.android.fishing.ui.model.SpeciesUi
 import hu.bme.aut.android.fishing.ui.model.UiText
 import hu.bme.aut.android.fishing.ui.model.asCatch
 import hu.bme.aut.android.fishing.ui.model.asCatchUi
@@ -71,6 +72,13 @@ class CheckCatchViewModel @Inject constructor(
                 val newValue = event.length
                 _state.update { it.copy(
                     catch = it.catch?.copy(length = newValue)
+                ) }
+            }
+
+            is CheckCatchEvent.SelectSpecies -> {
+                val newValue = event.species
+                _state.update { it.copy(
+                    catch = it.catch?.copy(species = newValue)
                 ) }
             }
 
@@ -143,6 +151,7 @@ sealed class CheckCatchEvent {
     data class ChangeName(val name: String): CheckCatchEvent()
     data class ChangeWeight(val weight: String): CheckCatchEvent()
     data class ChangeLength(val length: String): CheckCatchEvent()
+    data class SelectSpecies(val species: SpeciesUi): CheckCatchEvent()
     object UpdateCatch: CheckCatchEvent()
     object DeleteCatch: CheckCatchEvent()
 }

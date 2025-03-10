@@ -97,6 +97,8 @@ fun AddCatchScreen(
                     weightValueChange = { viewModel.onEvent(AddCatchEvent.ChangeWeight(it)) },
                     lengthValue = state.catch.length,
                     lengthValueChange = { viewModel.onEvent(AddCatchEvent.ChangeLength(it)) },
+                    selectedSpecies = state.catch.species,
+                    onSpeciesSelected = { viewModel.onEvent(AddCatchEvent.SelectSpecies(it)) },
                     modifier = Modifier
                 )
             }

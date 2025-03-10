@@ -29,4 +29,9 @@
     <string name="editing_catch">Fogás szerkesztése</string>
     <string name="list_item_supporting_text">dátum: %1$s</string>
     <string name="text_weight_length">tömeg: %1$s | kg hossz: %2$s cm</string>
+    <string name="species_title_none"></string>
+    <string name="species_title_carp">Ponty</string>
+    <string name="species_title_crucian">Kárász</string>
+    <string name="species_title_pike">Csuka</string>
+    <string name="species_title_catfish">Harcsa</string>
 </resources>

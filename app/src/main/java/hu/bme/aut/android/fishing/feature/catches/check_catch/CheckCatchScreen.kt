@@ -1,5 +1,6 @@
 package hu.bme.aut.android.fishing.feature.catches.check_catch
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -31,6 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hu.bme.aut.android.fishing.R
 import hu.bme.aut.android.fishing.ui.common.CatchAppBar
 import hu.bme.aut.android.fishing.ui.common.CatchEditor
+import hu.bme.aut.android.fishing.ui.model.CatchUi
 import hu.bme.aut.android.fishing.util.UiEvent
 import kotlinx.coroutines.launch
 
@@ -119,14 +121,16 @@ fun CheckCatchScreen(
                     color = MaterialTheme.colorScheme.secondaryContainer
                 )
             } else {
-                val catch = state.catch
+                val catch = state.catch ?: CatchUi()
                 CatchEditor(
-                    nameValue = catch!!.name,
+                    nameValue = catch.name,
                     nameValueChange = { viewModel.onEvent(CheckCatchEvent.ChangeName(it)) },
                     weightValue = catch.weight,
                     weightValueChange = { viewModel.onEvent(CheckCatchEvent.ChangeWeight(it)) },
                     lengthValue = catch.length,
                     lengthValueChange = { viewModel.onEvent(CheckCatchEvent.ChangeLength(it)) },
+                    selectedSpecies = catch.species,
+                    onSpeciesSelected = { viewModel.onEvent(CheckCatchEvent.SelectSpecies(it)) },
                     modifier = Modifier,
                     enabled = state.isEditingCatch
                 )

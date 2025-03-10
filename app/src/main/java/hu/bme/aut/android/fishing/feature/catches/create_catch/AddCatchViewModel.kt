@@ -1,12 +1,12 @@
 package hu.bme.aut.android.fishing.feature.catches.create_catch
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.bme.aut.android.fishing.domain.usecases.auth.AllAuthenticationUseCases
 import hu.bme.aut.android.fishing.domain.usecases.catches.AllCatchesUseCases
 import hu.bme.aut.android.fishing.ui.model.CatchUi
+import hu.bme.aut.android.fishing.ui.model.SpeciesUi
 import hu.bme.aut.android.fishing.ui.model.asCatch
 import hu.bme.aut.android.fishing.ui.model.toUiText
 import hu.bme.aut.android.fishing.util.UiEvent
@@ -55,6 +55,13 @@ class AddCatchViewModel @Inject constructor(
                 ) }
             }
 
+            is AddCatchEvent.SelectSpecies -> {
+                val newValue = event.species
+                _state.update { it.copy(
+                    catch = it.catch.copy(species = newValue)
+                ) }
+            }
+
             AddCatchEvent.SaveCatch -> {
                 val userId = authentication.currentUserId()
                 _state.update { it.copy(
@@ -92,4 +99,5 @@ sealed class AddCatchEvent {
     data class ChangeName(val name: String) : AddCatchEvent()
     data class ChangeWeight(val weight: String) : AddCatchEvent()
     data class ChangeLength(val length: String) : AddCatchEvent()
+    data class SelectSpecies(val species: SpeciesUi) : AddCatchEvent()
 }
