@@ -36,7 +36,7 @@ fun SpeciesUi.asSpecies(): Species {
         SpeciesUi.Carp -> Species.CARP
         SpeciesUi.Crucian -> Species.CRUCIAN
         SpeciesUi.Pike -> Species.PIKE
-        SpeciesUi.Catfish -> Species.CATFIS
+        SpeciesUi.Catfish -> Species.CATFISH
     }
 }
 
@@ -46,6 +46,6 @@ fun Species.asSpeciesUi(): SpeciesUi {
         Species.CARP -> SpeciesUi.Carp
         Species.CRUCIAN -> SpeciesUi.Crucian
         Species.PIKE -> SpeciesUi.Pike
-        Species.CATFIS -> SpeciesUi.Catfish
+        Species.CATFISH -> SpeciesUi.Catfish
     }
 }

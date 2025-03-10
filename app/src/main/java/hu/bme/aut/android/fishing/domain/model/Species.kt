@@ -5,9 +5,9 @@ enum class Species {
     CRUCIAN,
     CARP,
     PIKE,
-    CATFIS;
+    CATFISH;
 
     companion object {
-        val species = listOf(NONE, CRUCIAN, CARP, PIKE, CATFIS)
+        val species = listOf(NONE, CRUCIAN, CARP, PIKE, CATFISH)
     }
 }
