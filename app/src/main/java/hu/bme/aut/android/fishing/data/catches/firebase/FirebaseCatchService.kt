@@ -47,6 +47,5 @@ class FirebaseCatchService @Inject constructor(
         private const val CATCHES_COLLECTION = "catches"
         private const val CATCHES_NAME_FIELD = "name"
         private const val USER_ID_FIELD = "userId"
-        private const val USER_COLLECTION = "users"
     }
 }

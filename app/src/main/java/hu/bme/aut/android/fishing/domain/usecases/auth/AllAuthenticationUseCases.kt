@@ -13,5 +13,7 @@ class AllAuthenticationUseCases(
     val deleteAccount : DeleteAccountUseCase,
     val signOut : SignOutUseCase,
     val isEmailValid: IsEmailValidUseCase,
-    val passwordsMatch: PasswordsMatchUseCase
+    val passwordsMatch: PasswordsMatchUseCase,
+    val getUserProfile: GetUserProfileUseCase,
+    val updateUserProfile: UpdateUserProfileUseCase
 )

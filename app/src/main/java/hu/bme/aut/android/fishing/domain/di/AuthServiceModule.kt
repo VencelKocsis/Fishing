@@ -5,7 +5,7 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import hu.bme.aut.android.fishing.data.auth.AuthService
-import hu.bme.aut.android.fishing.data.auth.FirebaseAuthService
+import hu.bme.aut.android.fishing.data.auth.firebase.FirebaseAuthService
 import javax.inject.Singleton
 
 @Module

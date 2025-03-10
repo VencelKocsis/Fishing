@@ -9,6 +9,7 @@ import hu.bme.aut.android.fishing.domain.usecases.auth.AllAuthenticationUseCases
 import hu.bme.aut.android.fishing.domain.usecases.auth.CurrentUserIdUseCase
 import hu.bme.aut.android.fishing.domain.usecases.auth.CurrentUserUseCase
 import hu.bme.aut.android.fishing.domain.usecases.auth.DeleteAccountUseCase
+import hu.bme.aut.android.fishing.domain.usecases.auth.GetUserProfileUseCase
 import hu.bme.aut.android.fishing.domain.usecases.auth.HasUserUseCase
 import hu.bme.aut.android.fishing.domain.usecases.auth.IsEmailValidUseCase
 import hu.bme.aut.android.fishing.domain.usecases.auth.PasswordsMatchUseCase
@@ -16,6 +17,7 @@ import hu.bme.aut.android.fishing.domain.usecases.auth.SendRecoveryEmailUseCase
 import hu.bme.aut.android.fishing.domain.usecases.auth.SignInUseCase
 import hu.bme.aut.android.fishing.domain.usecases.auth.SignOutUseCase
 import hu.bme.aut.android.fishing.domain.usecases.auth.SignUpUseCase
+import hu.bme.aut.android.fishing.domain.usecases.auth.UpdateUserProfileUseCase
 import javax.inject.Singleton
 
 @Module
@@ -73,6 +75,16 @@ object AllAuthenticationUseCasesModule {
 
     @Provides
     @Singleton
+    fun provideGetUserProfileUseCase(repository: AuthService): GetUserProfileUseCase =
+        GetUserProfileUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideUpdateUserProfileUseCase(repository: AuthService): UpdateUserProfileUseCase =
+        UpdateUserProfileUseCase(repository)
+
+    @Provides
+    @Singleton
     fun provideAuthenticationUseCases(
         repository: AuthService,
         currentUserIdUseCase: CurrentUserIdUseCase,
@@ -84,7 +96,9 @@ object AllAuthenticationUseCasesModule {
         deleteAccountUseCase: DeleteAccountUseCase,
         signOutUseCase: SignOutUseCase,
         isEmailValidUseCase: IsEmailValidUseCase,
-        passwordsMatchUseCase: PasswordsMatchUseCase
+        passwordsMatchUseCase: PasswordsMatchUseCase,
+        getUserProfileUseCase: GetUserProfileUseCase,
+        updateUserProfileUseCase: UpdateUserProfileUseCase
     ): AllAuthenticationUseCases = AllAuthenticationUseCases(
         repository,
         currentUserIdUseCase,
@@ -96,6 +110,8 @@ object AllAuthenticationUseCasesModule {
         deleteAccountUseCase,
         signOutUseCase,
         isEmailValidUseCase,
-        passwordsMatchUseCase
+        passwordsMatchUseCase,
+        getUserProfileUseCase,
+        updateUserProfileUseCase
     )
 }
