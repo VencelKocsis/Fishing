@@ -34,11 +34,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hu.bme.aut.android.fishing.R
+import hu.bme.aut.android.fishing.ui.icons.Fish
 import hu.bme.aut.android.fishing.ui.model.SpeciesUi
 
 @ExperimentalMaterial3Api
@@ -75,18 +78,18 @@ fun SpeciesDropdown(
         ) {
             Spacer(modifier = Modifier.width(20.dp))
             Icon(
-                //painter = painterResource(id = R.drawable.fish_on_hook), // Use drawable, not mipmap
-                imageVector = Icons.Default.Cabin,
+                //imageVector = ImageVector.vectorResource(id = R.drawable.fish_and_hook),
+                imageVector = Fish,
                 contentDescription = null,
                 tint = selectedSpecies.color,
-                modifier = Modifier.size(50.dp)
+                modifier = Modifier.size(25.dp)
             )
             Spacer(modifier = Modifier.width(5.dp))
             Text(
                 modifier = Modifier
                     .weight(weight = 8f),
                 text = stringResource(id = selectedSpecies.title),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.labelLarge,
             )
             IconButton(
                 modifier = Modifier
@@ -111,7 +114,7 @@ fun SpeciesDropdown(
                         text = {
                             Text(
                                 text = stringResource(id = species.title),
-                                style = MaterialTheme.typography.labelMedium
+                                style = MaterialTheme.typography.labelLarge
                             )
                         },
                         onClick = {
@@ -120,12 +123,12 @@ fun SpeciesDropdown(
                         },
                         leadingIcon = {
                             Icon(
-                                //painter = painterResource(id = R.drawable.fish_on_hook),
-                                imageVector = Icons.Default.Cabin,
+                                //imageVector = ImageVector.vectorResource(id = R.drawable.fish_and_hook),
+                                imageVector = Fish,
                                 contentDescription = null,
                                 tint = species.color,
                                 modifier = Modifier
-                                    .size(50.dp)
+                                    .size(25.dp)
                             )
                         }
                     )

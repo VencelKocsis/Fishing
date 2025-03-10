@@ -87,7 +87,7 @@ fun AddCatchScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(8.dp),
+                    .padding(10.dp),
                 contentAlignment = Alignment.Center
             ) {
                 CatchEditor(
