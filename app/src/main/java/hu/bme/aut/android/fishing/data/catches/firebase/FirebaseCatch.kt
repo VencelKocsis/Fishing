@@ -1,17 +1,16 @@
 package hu.bme.aut.android.fishing.data.catches.firebase
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentId
-import com.google.firebase.firestore.ServerTimestamp
 import hu.bme.aut.android.fishing.domain.model.Catch
 import hu.bme.aut.android.fishing.domain.model.Species
-import java.util.Date
 
 data class FirebaseCatch(
     @DocumentId val id: String = "",
     val name: String = "",
     val weight: String = "",
     val length: String = "",
-    //@ServerTimestamp val dueDate: Date? = null,
+    val dueDate: Timestamp? = null,
     val species: Species = Species.NONE,
     // TODO val imageURL: String = "",
     val userId: String = ""
@@ -22,7 +21,7 @@ fun FirebaseCatch.asCatch() = Catch(
     name = name,
     weight = weight,
     length = length,
-    //dueDate = dueDate ?: Date(),
+    dueDate = dueDate?.toDate(),
     species = species,
     // TODO imageURL = imageURL,
     userId = userId
@@ -33,7 +32,7 @@ fun Catch.asFirebaseCatch() = FirebaseCatch(
     name = name,
     weight = weight,
     length = length,
-    //dueDate = dueDate,
+    dueDate = dueDate?.let { Timestamp(it) } ?: Timestamp.now(),
     species = species,
     // TODO imageURL = imageURL,
     userId = userId

@@ -11,18 +11,33 @@ data class CatchUi(
     val name: String = "",
     val weight: String = "",
     val length: String = "",
-    //val dueDate: String = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date()),
+    val dueDate: String = "",
     val species: SpeciesUi = SpeciesUi.None,
     // TODO val imageURL: String = "",
     val userId: String = ""
 )
+
+fun String?.toDateOrNull(): Date? {
+    return if (this.isNullOrEmpty()) {
+        null
+    } else {
+        try {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            dateFormat.parse(this)
+        } catch (e: Exception) {
+            null
+        }
+    }
+}
 
 fun Catch.asCatchUi(): CatchUi = CatchUi(
     id = id,
     name = name,
     weight = weight,
     length = length,
-    //dueDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(dueDate),
+    dueDate = dueDate?.let {
+        SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(it)
+    } ?: "",
     species = species.asSpeciesUi(),
     // TODO imageURL = imageURL,
     userId = userId
@@ -33,7 +48,7 @@ fun CatchUi.asCatch(): Catch = Catch(
     name = name,
     weight = weight,
     length = length,
-    //dueDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(dueDate) ?: Date(),
+    dueDate = dueDate.toDateOrNull(),
     species = species.asSpecies(),
     // TODO imageURL = imageURL,
     userId = userId

@@ -34,4 +34,7 @@
     <string name="species_title_crucian">Kárász</string>
     <string name="species_title_pike">Csuka</string>
     <string name="species_title_catfish">Harcsa</string>
+    <string name="button_text_edit_profile">Profil szerkesztése</string>
+    <string name="text_no_due_date">nincs elérhető dátum</string>
+    <string name="text_due_date">fogási dátum: %1$s</string>
 </resources>

@@ -1,5 +1,6 @@
 package hu.bme.aut.android.fishing.feature.auth
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -74,8 +75,14 @@ class AuthenticationViewModel @Inject constructor(
             AuthenticationEvent.ChangeMode -> {
                 _state.update { it.copy(isInRegisterMode = !_state.value.isInRegisterMode) }
             }
+
             AuthenticationEvent.ForgotPasswordButtonClicked -> {
                 sendPasswordRecoveryEmail()
+            }
+
+            AuthenticationEvent.ProfileEditButtonClicked -> {
+                _state.update { it.copy(isInEditUserProfileMode = !_state.value.isInEditUserProfileMode) }
+                Log.d("AuthenticationViewModel", "ProfileEditButtonClicked: ${_state.value.isInEditUserProfileMode}")
             }
         }
     }
@@ -168,7 +175,8 @@ data class AuthenticationState(
     val passwordVisibility: Boolean = false,
     val confirmPasswordVisibility: Boolean = false,
     val isInRegisterMode: Boolean = false,
-    val isLoggedIn: Boolean = false
+    val isLoggedIn: Boolean = false,
+    val isInEditUserProfileMode: Boolean = false
 )
 
 sealed class AuthenticationEvent {
@@ -181,4 +189,5 @@ sealed class AuthenticationEvent {
     object LogoutButtonClicked : AuthenticationEvent()
     object ChangeMode : AuthenticationEvent()
     object ForgotPasswordButtonClicked : AuthenticationEvent()
+    object ProfileEditButtonClicked: AuthenticationEvent()
 }

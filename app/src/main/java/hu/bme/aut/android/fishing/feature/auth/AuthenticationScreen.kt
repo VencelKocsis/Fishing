@@ -12,10 +12,12 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -92,6 +94,18 @@ fun AuthenticationScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (state.isLoggedIn) {
+                IconButton(
+                    onClick = {
+                        viewModel.onEvent(AuthenticationEvent.ProfileEditButtonClicked)
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+
                 Button(
                     shape = RoundedCornerShape(8.dp),
                     onClick = { viewModel.onEvent(AuthenticationEvent.LogoutButtonClicked) },

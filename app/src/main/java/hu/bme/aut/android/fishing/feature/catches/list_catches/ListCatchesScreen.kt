@@ -157,25 +157,46 @@ fun ListCatchesScreen(
                                             Text(text = state.catches[i].name)
                                         },
                                         supportingContent = {
-                                            Row(
-                                                modifier = Modifier.padding(top = 5.dp),
-                                                horizontalArrangement = Arrangement.SpaceBetween
+                                            Column(
+                                                horizontalAlignment = Alignment.Start,
+                                                modifier = Modifier.padding(top = 5.dp)
                                             ) {
-                                                Text(
-                                                    text = stringResource(
-                                                        id = R.string.text_weight_length,
-                                                        state.catches[i].weight,
-                                                        state.catches[i].length
+                                                Row(
+                                                    modifier = Modifier.padding(top = 5.dp),
+                                                    horizontalArrangement = Arrangement.SpaceBetween
+                                                ) {
+                                                    Text(
+                                                        text = stringResource(
+                                                            id = R.string.text_weight_length,
+                                                            state.catches[i].weight,
+                                                            state.catches[i].length
+                                                        )
                                                     )
-                                                )
+                                                }
+                                                Row(
+                                                    modifier = Modifier.padding(top = 5.dp),
+                                                    horizontalArrangement = Arrangement.SpaceBetween
+                                                ) {
+                                                    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+                                                    // Handle if the dueDate is a String, or a Date object.
+                                                    val formattedDate = try {
+                                                        // If dueDate is a String, try to parse it
+                                                        val date = state.catches[i].dueDate?.let {
+                                                            SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(it)
+                                                        }
+                                                        // If dueDate is already a Date, format it
+                                                        date?.let { dateFormat.format(it) }
+                                                    } catch (e: Exception) {
+                                                        null // In case of parsing error, return null
+                                                    }
+
+                                                    Text(
+                                                        text = stringResource(id = R.string.text_due_date, formattedDate ?: R.string.text_no_due_date)
+                                                    )
+                                                }
                                             }
                                         },
-                                        /*supportingContent = {
-                                            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                                            Text(
-                                                text = dateFormat.format(state.catches[i].dueDate)
-                                            )
-                                        },*/
                                         modifier = Modifier.clickable(onClick = { onListItemClick(state.catches[i].id) })
                                     )
                                     if (i < state.catches.size - 1) {
