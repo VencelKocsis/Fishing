@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import hu.bme.aut.android.fishing.data.auth.AuthService
 import hu.bme.aut.android.fishing.domain.usecases.auth.AllAuthenticationUseCases
+import hu.bme.aut.android.fishing.domain.usecases.auth.CreateUserProfileUseCase
 import hu.bme.aut.android.fishing.domain.usecases.auth.CurrentUserIdUseCase
 import hu.bme.aut.android.fishing.domain.usecases.auth.CurrentUserUseCase
 import hu.bme.aut.android.fishing.domain.usecases.auth.DeleteAccountUseCase
@@ -85,6 +86,11 @@ object AllAuthenticationUseCasesModule {
 
     @Provides
     @Singleton
+    fun provideCreateUserProfileUseCase(repository: AuthService): CreateUserProfileUseCase =
+        CreateUserProfileUseCase(repository)
+
+    @Provides
+    @Singleton
     fun provideAuthenticationUseCases(
         repository: AuthService,
         currentUserIdUseCase: CurrentUserIdUseCase,
@@ -98,7 +104,8 @@ object AllAuthenticationUseCasesModule {
         isEmailValidUseCase: IsEmailValidUseCase,
         passwordsMatchUseCase: PasswordsMatchUseCase,
         getUserProfileUseCase: GetUserProfileUseCase,
-        updateUserProfileUseCase: UpdateUserProfileUseCase
+        updateUserProfileUseCase: UpdateUserProfileUseCase,
+        createUserProfileUseCase: CreateUserProfileUseCase
     ): AllAuthenticationUseCases = AllAuthenticationUseCases(
         repository,
         currentUserIdUseCase,
@@ -112,6 +119,7 @@ object AllAuthenticationUseCasesModule {
         isEmailValidUseCase,
         passwordsMatchUseCase,
         getUserProfileUseCase,
-        updateUserProfileUseCase
+        updateUserProfileUseCase,
+        createUserProfileUseCase
     )
 }

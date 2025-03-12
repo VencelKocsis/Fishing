@@ -37,4 +37,7 @@
     <string name="button_text_edit_profile">Profil szerkesztése</string>
     <string name="text_no_due_date">nincs elérhető dátum</string>
     <string name="text_due_date">fogási dátum: %1$s</string>
+    <string name="user_name">Felhasználó név</string>
+    <string name="text_not_valid_email">nem megfelelő e-mail cím</string>
+    <string name="text_passwords_not_match">jelszavak nem egyeznek</string>
 </resources>

@@ -1,15 +1,12 @@
 package hu.bme.aut.android.fishing.feature.catches.check_catch
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import hu.bme.aut.android.fishing.R
 import hu.bme.aut.android.fishing.domain.usecases.catches.AllCatchesUseCases
 import hu.bme.aut.android.fishing.ui.model.CatchUi
 import hu.bme.aut.android.fishing.ui.model.SpeciesUi
-import hu.bme.aut.android.fishing.ui.model.UiText
 import hu.bme.aut.android.fishing.ui.model.asCatch
 import hu.bme.aut.android.fishing.ui.model.asCatchUi
 import hu.bme.aut.android.fishing.ui.model.toUiText

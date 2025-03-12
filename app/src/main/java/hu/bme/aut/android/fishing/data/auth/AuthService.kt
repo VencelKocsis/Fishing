@@ -17,6 +17,7 @@ interface AuthService {
     suspend fun deleteAccount()
     suspend fun signOut()
 
+    suspend fun createUserProfile(user: User)
     suspend fun getUserProfile(id: String): User?
     suspend fun updateUserProfile(user: User)
 }

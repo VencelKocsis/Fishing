@@ -57,6 +57,10 @@ class FirebaseAuthService @Inject constructor(
         firestore.collection(PROFILES_COLLECTION).document(user.id).set(user.asFirebaseUser()).await()
     }
 
+    override suspend fun createUserProfile(user: User) {
+        firestore.collection(PROFILES_COLLECTION).add(user.asFirebaseUser()).await()
+    }
+
     companion object {
         private const val PROFILES_COLLECTION = "users"
     }

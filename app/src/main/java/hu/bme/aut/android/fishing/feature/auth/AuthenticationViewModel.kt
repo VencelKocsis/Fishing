@@ -5,8 +5,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.bme.aut.android.fishing.R
+import hu.bme.aut.android.fishing.domain.model.User
 import hu.bme.aut.android.fishing.domain.usecases.auth.AllAuthenticationUseCases
 import hu.bme.aut.android.fishing.ui.model.UiText
+import hu.bme.aut.android.fishing.ui.model.UserUi
+import hu.bme.aut.android.fishing.ui.model.asUserUi
 import hu.bme.aut.android.fishing.ui.model.toUiText
 import hu.bme.aut.android.fishing.util.UiEvent
 import kotlinx.coroutines.Dispatchers
@@ -50,6 +53,11 @@ class AuthenticationViewModel @Inject constructor(
             is AuthenticationEvent.ConfirmPasswordChanged -> {
                 val newConfirmPassword = event.password.trim()
                 _state.update { it.copy(confirmPassword = newConfirmPassword) }
+            }
+
+            is AuthenticationEvent.UserNameChanged -> {
+                val newName = event.name.trim()
+                _state.update { it.copy(user = it.user?.copy(name = newName)) }
             }
 
             AuthenticationEvent.PasswordVisibilityChanged -> {
@@ -109,12 +117,12 @@ class AuthenticationViewModel @Inject constructor(
             try {
                 if (!authentication.isEmailValid(email)) {
                     _uiEvent.send(
-                        UiEvent.Failure(UiText.StringResource(R.string.some_error_message))
+                        UiEvent.Failure(UiText.StringResource(R.string.text_not_valid_email))
                     )
                 } else {
                     if (password.isBlank()) {
                         _uiEvent.send(
-                            UiEvent.Failure(UiText.StringResource(R.string.some_error_message))
+                            UiEvent.Failure(UiText.StringResource(R.string.text_passwords_not_match))
                         )
                     } else {
                         authentication.signIn(email, password)
@@ -133,15 +141,22 @@ class AuthenticationViewModel @Inject constructor(
             try {
                 if (!authentication.isEmailValid(email)) {
                     _uiEvent.send(
-                        UiEvent.Failure(UiText.StringResource(R.string.some_error_message))
+                        UiEvent.Failure(UiText.StringResource(R.string.text_not_valid_email))
                     )
                 } else {
                     if (!authentication.passwordsMatch(password, confirmPassword) && password.isNotBlank()) {
                         _uiEvent.send(
-                            UiEvent.Failure(UiText.StringResource(R.string.some_error_message))
+                            UiEvent.Failure(UiText.StringResource(R.string.text_passwords_not_match))
                         )
                     } else {
                         authentication.signUp(email, password)
+                        val user = User(
+                            id = authentication.currentUserId()!!,
+                            name = "",
+                            email = email,
+                            birthDate = null
+                        )
+                        authentication.createUserProfile(user)
                         _uiEvent.send(UiEvent.Success(UiText.StringResource(R.string.successful_registration)))
                         onSignIn()
                     }
@@ -166,9 +181,24 @@ class AuthenticationViewModel @Inject constructor(
     }
 
     fun checkSignInState() = _state.update { it.copy(isLoggedIn = authentication.hasUser()) }
+
+    fun loadUserProfile() {
+        viewModelScope.launch {
+            _state.update { it.copy(isLoadingUserProfile = true) }
+            try {
+                checkSignInState()
+                val user = authentication.getUserProfile(authentication.currentUserId()!!)
+                Log.d("AuthenticationViewModel", "loadUserProfile: ${user}")
+                _state.update { it.copy(user = user?.asUserUi(), isLoadingUserProfile = false) }
+            } catch (e: Exception) {
+                _uiEvent.send(UiEvent.Failure(e.toUiText()))
+            }
+        }
+    }
 }
 
 data class AuthenticationState(
+    val user: UserUi? = null,
     val email: String = "",
     val password: String = "",
     val confirmPassword: String = "",
@@ -176,13 +206,17 @@ data class AuthenticationState(
     val confirmPasswordVisibility: Boolean = false,
     val isInRegisterMode: Boolean = false,
     val isLoggedIn: Boolean = false,
-    val isInEditUserProfileMode: Boolean = false
+    val isInEditUserProfileMode: Boolean = false,
+    val isLoadingUserProfile: Boolean = false,
+    val isError: Boolean = false,
+    val error: Throwable? = null,
 )
 
 sealed class AuthenticationEvent {
     data class EmailChanged(val email: String) : AuthenticationEvent()
     data class PasswordChanged(val password: String) : AuthenticationEvent()
     data class ConfirmPasswordChanged(val password: String) : AuthenticationEvent()
+    data class UserNameChanged(val name: String) : AuthenticationEvent()
     object PasswordVisibilityChanged : AuthenticationEvent()
     object ConfirmPasswordVisibilityChanged : AuthenticationEvent()
     object AuthenticationButtonClicked : AuthenticationEvent()

@@ -15,5 +15,6 @@ class AllAuthenticationUseCases(
     val isEmailValid: IsEmailValidUseCase,
     val passwordsMatch: PasswordsMatchUseCase,
     val getUserProfile: GetUserProfileUseCase,
-    val updateUserProfile: UpdateUserProfileUseCase
+    val updateUserProfile: UpdateUserProfileUseCase,
+    val createUserProfile: CreateUserProfileUseCase
 )
