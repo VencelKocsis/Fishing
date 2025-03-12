@@ -33,6 +33,7 @@ coreSplashscreen = "1.0.1"
 playServicesWearable = "19.0.0"
 wearInput = "1.2.0-alpha02"
 wearMaterial3 = "1.0.0-alpha29"
+firebaseStorageKtx = "21.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -76,6 +77,7 @@ androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscree
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 androidx-compose-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "wearMaterial3" }
 androidx-wear-input = { module = "androidx.wear:wear-input", version.ref = "wearInput" }
+firebase-storage-ktx = { group = "com.google.firebase", name = "firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

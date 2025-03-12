@@ -12,7 +12,7 @@ data class FirebaseCatch(
     val length: String = "",
     val dueDate: Timestamp? = null,
     val species: Species = Species.NONE,
-    // TODO val imageURL: String = "",
+    val imageURL: String = "",
     val userId: String = ""
     )
 
@@ -23,7 +23,7 @@ fun FirebaseCatch.asCatch() = Catch(
     length = length,
     dueDate = dueDate?.toDate(),
     species = species,
-    // TODO imageURL = imageURL,
+    imageURL = imageURL,
     userId = userId
 )
 
@@ -34,6 +34,6 @@ fun Catch.asFirebaseCatch() = FirebaseCatch(
     length = length,
     dueDate = dueDate?.let { Timestamp(it) } ?: Timestamp.now(),
     species = species,
-    // TODO imageURL = imageURL,
+    imageURL = imageURL,
     userId = userId
 )

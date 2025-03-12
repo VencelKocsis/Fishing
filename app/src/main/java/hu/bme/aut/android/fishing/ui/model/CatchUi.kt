@@ -13,7 +13,7 @@ data class CatchUi(
     val length: String = "",
     val dueDate: String = "",
     val species: SpeciesUi = SpeciesUi.None,
-    // TODO val imageURL: String = "",
+    val imageURL: String = "",
     val userId: String = ""
 )
 
@@ -39,7 +39,7 @@ fun Catch.asCatchUi(): CatchUi = CatchUi(
         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(it)
     } ?: "",
     species = species.asSpeciesUi(),
-    // TODO imageURL = imageURL,
+    imageURL = imageURL,
     userId = userId
 )
 
@@ -50,6 +50,6 @@ fun CatchUi.asCatch(): Catch = Catch(
     length = length,
     dueDate = dueDate.toDateOrNull(),
     species = species.asSpecies(),
-    // TODO imageURL = imageURL,
+    imageURL = imageURL,
     userId = userId
 )
