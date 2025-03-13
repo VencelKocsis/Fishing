@@ -46,10 +46,8 @@ fun CatchEditor(
 
     Column(
         modifier = modifier
-            .fillMaxSize()
             .background(MaterialTheme.colorScheme.surface),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
     ) {
         if (enabled) {
             // Name input

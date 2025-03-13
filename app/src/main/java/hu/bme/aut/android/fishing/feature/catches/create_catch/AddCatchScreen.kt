@@ -1,13 +1,28 @@
 package hu.bme.aut.android.fishing.feature.catches.create_catch
 
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -15,20 +30,31 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import hu.bme.aut.android.fishing.R
 import hu.bme.aut.android.fishing.ui.common.CatchAppBar
 import hu.bme.aut.android.fishing.ui.common.CatchEditor
+import hu.bme.aut.android.fishing.ui.common.RequestCameraPermission
 import hu.bme.aut.android.fishing.util.UiEvent
 import kotlinx.coroutines.launch
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -40,6 +66,22 @@ fun AddCatchScreen(
     val snackbarHostState = SnackbarHostState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
+
+    var showCamera by remember { mutableStateOf(false) }
+    var imageUri by remember { mutableStateOf<Uri?>(state.imageUri) }
+    var currentPhotoPath by remember { mutableStateOf("") }
+
+    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            Log.d("AddCatchScreen", "Image capture successful, path: $currentPhotoPath")
+            val file = File(currentPhotoPath)
+            imageUri = Uri.fromFile(file)
+            viewModel.onEvent(AddCatchEvent.CaptureImage(imageUri.toString()))
+            Log.d("AddCatchScreen", "Image URI updated: $imageUri")
+        } else {
+            Log.e("AddCatchScreen", "Image capture failed")
+        }
+    }
 
     LaunchedEffect(key1 = Unit) {
         viewModel.uiEvent.collect { event ->
@@ -81,41 +123,75 @@ fun AddCatchScreen(
         }
     ) { innerPadding ->
         Column(
-            modifier = Modifier.padding(innerPadding),
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
+            CatchEditor(
+                nameValue = state.catch.name,
+                nameValueChange = { viewModel.onEvent(AddCatchEvent.ChangeName(it)) },
+                weightValue = state.catch.weight,
+                weightValueChange = { viewModel.onEvent(AddCatchEvent.ChangeWeight(it)) },
+                lengthValue = state.catch.length,
+                lengthValueChange = { viewModel.onEvent(AddCatchEvent.ChangeLength(it)) },
+                selectedSpecies = state.catch.species,
+                onSpeciesSelected = { viewModel.onEvent(AddCatchEvent.SelectSpecies(it)) },
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(10.dp),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .padding(10.dp)
+            )
+
+            IconButton(
+                onClick = { showCamera = true },
+                modifier = Modifier.size(64.dp)
             ) {
-                CatchEditor(
-                    nameValue = state.catch.name,
-                    nameValueChange = { viewModel.onEvent(AddCatchEvent.ChangeName(it)) },
-                    weightValue = state.catch.weight,
-                    weightValueChange = { viewModel.onEvent(AddCatchEvent.ChangeWeight(it)) },
-                    lengthValue = state.catch.length,
-                    lengthValueChange = { viewModel.onEvent(AddCatchEvent.ChangeLength(it)) },
-                    selectedSpecies = state.catch.species,
-                    onSpeciesSelected = { viewModel.onEvent(AddCatchEvent.SelectSpecies(it)) },
-                    modifier = Modifier
-                )
+                Icon(imageVector = Icons.Default.AddAPhoto, contentDescription = "Take Picture")
             }
+
+            AsyncImage(
+                model = imageUri,
+                contentDescription = "Captured Image",
+                modifier = Modifier
+                    .size(128.dp)
+                    .padding(16.dp),
+                contentScale = ContentScale.Crop
+            )
+            Log.d("AddCatchScreen", "Image URI for AsyncImage: $imageUri")
         }
+    }
+
+    // Request Permission and Open Camera
+    if (showCamera) {
+        RequestCameraPermission(
+            onPermissionGranted = {
+                Log.d("AddCatchScreen", "Camera permission granted")
+                val uri = createImageUri(context)
+                currentPhotoPath = uri.path ?: ""
+                imageUri = uri
+                Log.d("AddCatchScreen", "Launching camera with URI: $uri")
+                cameraLauncher.launch(uri)
+            },
+            onPermissionDenied = {
+                Log.e("AddCatchScreen", "Camera permission denied")
+                scope.launch {
+                    snackbarHostState.showSnackbar("Camera permission is required to take pictures.")
+                }
+            }
+        )
+        showCamera = false
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+fun createImageUri(context: Context): Uri {
+    val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+    val file = File(storageDir, "IMG_${timestamp}.jpg")
+    val uri = FileProvider.getUriForFile(
+        context,
+        "hu.bme.aut.android.fileprovider",
+        file
+    )
+    Log.d("AddCatchScreen", "Image file created at: $uri")
+    return uri
+}

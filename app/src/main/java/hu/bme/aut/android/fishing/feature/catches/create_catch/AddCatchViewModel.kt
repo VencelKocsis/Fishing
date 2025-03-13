@@ -1,5 +1,7 @@
 package hu.bme.aut.android.fishing.feature.catches.create_catch
 
+import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -62,6 +64,22 @@ class AddCatchViewModel @Inject constructor(
                 ) }
             }
 
+            /*is AddCatchEvent.CaptureImage -> {
+                _state.update { it.copy(
+                    catch = it.catch.copy(imageURL = event.uri)
+                ) }
+                Log.d("AddCatchViewModel", "Image URI updated: ${event.uri}")
+            }*/
+
+            is AddCatchEvent.CaptureImage -> {
+                val uri = Uri.parse(event.uri)
+                _state.update { it.copy(
+                    catch = it.catch.copy(imageURL = uri.toString()),  // Ensure URI is stored inside `catch`
+                    imageUri = uri  // Also update `imageUri` in state
+                ) }
+                Log.d("AddCatchViewModel", "Image URI updated: $uri")
+            }
+
             AddCatchEvent.SaveCatch -> {
                 val userId = authentication.currentUserId()
                 _state.update { it.copy(
@@ -72,11 +90,31 @@ class AddCatchViewModel @Inject constructor(
         }
     }
 
+    /*fun saveCatch() {
+        viewModelScope.launch {
+            try {
+                Log.d("AddCatchViewModel", "Saving catch with image URI: ${state.value.imageUri}")
+                CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
+                    catchesUseCases.addCatch(state.value.catch.asCatch(), state.value.imageUri)
+                }
+                _uiEvent.send(UiEvent.Success())
+            } catch (e: Exception) {
+                _state.update { it.copy(error = e, isError = true) }
+                _uiEvent.send(UiEvent.Failure(e.toUiText()))
+            }
+        }
+    }*/
+
     fun saveCatch() {
         viewModelScope.launch {
             try {
+                val updatedCatch = state.value.catch.copy(imageURL = state.value.imageUri.toString())  // Ensure imageURL is set
+                Log.d("AddCatchViewModel", "Saving catch with image URI: ${updatedCatch.imageURL}")
+
+                val imageUri: Uri? = state.value.imageUri  // Keep it as Uri?
+
                 CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
-                    catchesUseCases.addCatch(state.value.catch.asCatch())
+                    catchesUseCases.addCatch(updatedCatch.asCatch(), imageUri)  // Pass Uri instead of String
                 }
                 _uiEvent.send(UiEvent.Success())
             } catch (e: Exception) {
@@ -90,7 +128,8 @@ class AddCatchViewModel @Inject constructor(
 data class AddCatchState(
     val error: Throwable? = null,
     val isError: Boolean = error != null,
-    val catch: CatchUi = CatchUi()
+    val catch: CatchUi = CatchUi(),
+    val imageUri: Uri? = null
 )
 
 sealed class AddCatchEvent {
@@ -100,4 +139,5 @@ sealed class AddCatchEvent {
     data class ChangeWeight(val weight: String) : AddCatchEvent()
     data class ChangeLength(val length: String) : AddCatchEvent()
     data class SelectSpecies(val species: SpeciesUi) : AddCatchEvent()
+    data class CaptureImage(val uri: String) : AddCatchEvent()
 }

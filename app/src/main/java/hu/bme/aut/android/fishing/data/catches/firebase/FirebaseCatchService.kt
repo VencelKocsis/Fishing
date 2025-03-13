@@ -1,6 +1,7 @@
 package hu.bme.aut.android.fishing.data.catches.firebase
 
 import android.net.Uri
+import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.dataObjects
 import com.google.firebase.firestore.toObject
@@ -57,6 +58,7 @@ class FirebaseCatchService @Inject constructor(
             storageRef.putFile(imageUri).await()
             storageRef.downloadUrl.await().toString()
         } catch (e : Exception) {
+            Log.e("FirebaseCatchService", "Image upload failed", e)
             null
         }
     }
