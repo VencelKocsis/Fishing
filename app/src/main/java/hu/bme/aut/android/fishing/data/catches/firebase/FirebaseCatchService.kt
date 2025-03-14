@@ -99,6 +99,7 @@ class FirebaseCatchService @Inject constructor(
             throw e
         }
     }
+    // TODO needs to add: delete image from catch
 
     override suspend fun downloadImage(imageUrl: String, onProgress: (Float) -> Unit): Uri? {
         try {
