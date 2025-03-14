@@ -23,7 +23,7 @@ fun FirebaseCatch.asCatch() = Catch(
     length = length,
     dueDate = dueDate?.toDate(),
     species = species,
-    imageURL = imageURL,
+    imageUri = imageURL,
     userId = userId
 )
 
@@ -34,6 +34,6 @@ fun Catch.asFirebaseCatch() = FirebaseCatch(
     length = length,
     dueDate = dueDate?.let { Timestamp(it) } ?: Timestamp.now(),
     species = species,
-    imageURL = imageURL,
+    imageURL = imageUri,
     userId = userId
 )

@@ -1,5 +1,6 @@
 package hu.bme.aut.android.fishing.feature.catches.check_catch
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -100,9 +101,24 @@ class CheckCatchViewModel @Inject constructor(
             try {
                 CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
                     val catch = catchesUseCases.getCatchById(catchId)!!.asCatchUi()
-                    _state.update { it.copy(isLoadingCatch = false, catch = catch) }
+
+                    if (!catch.imageUri.isNullOrEmpty()) {
+                        // Pass the progress callback to handle the progress updates
+                        catchesUseCases.downloadImage(catch.imageUri!!) { progress ->
+                            _state.update { currentState ->
+                                currentState.copy(uploadProgress = progress)  // Update the progress in the state
+                            }
+                        }
+                        // After download, update the imageUri in the state
+                        val imageUri = catchesUseCases.downloadImage(catch.imageUri!!) { progress ->
+                            // Continue reporting progress while downloading
+                        }
+                        _state.update { it.copy(isLoadingCatch = false, catch = catch, imageUri = imageUri) }
+                    } else {
+                        _state.update { it.copy(isLoadingCatch = false, catch = catch) }
+                    }
                 }
-            } catch (e : Exception) {
+            } catch (e: Exception) {
                 _uiEvent.send(UiEvent.Failure(e.toUiText()))
             }
         }
@@ -111,8 +127,22 @@ class CheckCatchViewModel @Inject constructor(
     private fun updateCatch() {
         viewModelScope.launch {
             try {
+                val imageUri = state.value.imageUri
+                val catchUi = state.value.catch?.asCatch()
+
+                // Upload the image if it exists, and track progress
+                val imageUrl = imageUri?.let {
+                    catchesUseCases.uploadImage(it) { progress ->
+                        _state.update { currentState ->
+                            currentState.copy(uploadProgress = progress)  // Update progress state
+                        }
+                    }
+                } ?: ""
+
+                val updatedCatch = catchUi?.copy(imageUri = imageUrl)
+
                 CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
-                    catchesUseCases.updateCatch(state.value.catch!!.asCatch())
+                    catchesUseCases.updateCatch(state.value.catch!!.asCatch(), imageUri.toString())
                 }
                 _uiEvent.send(UiEvent.Success())
             } catch (e : Exception) {
@@ -139,7 +169,9 @@ data class CheckCatchState(
     val catch: CatchUi? = null,
     val isLoadingCatch: Boolean = false,
     val isEditingCatch: Boolean = false,
-    val error: Throwable? = null
+    val error: Throwable? = null,
+    val imageUri: Uri? = null,
+    val uploadProgress: Float = 0f
 )
 
 sealed class CheckCatchEvent {

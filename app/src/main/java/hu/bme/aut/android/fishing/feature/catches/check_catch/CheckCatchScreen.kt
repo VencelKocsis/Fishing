@@ -1,9 +1,8 @@
 package hu.bme.aut.android.fishing.feature.catches.check_catch
 
-import android.util.Log
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -31,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import hu.bme.aut.android.fishing.R
 import hu.bme.aut.android.fishing.ui.common.CatchAppBar
 import hu.bme.aut.android.fishing.ui.common.CatchEditor
@@ -116,29 +116,36 @@ fun CheckCatchScreen(
             modifier = Modifier.padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(10.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                if (state.isLoadingCatch) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.secondaryContainer
-                    )
-                } else {
-                    val catch = state.catch ?: CatchUi()
-                    CatchEditor(
-                        nameValue = catch.name,
-                        nameValueChange = { viewModel.onEvent(CheckCatchEvent.ChangeName(it)) },
-                        weightValue = catch.weight,
-                        weightValueChange = { viewModel.onEvent(CheckCatchEvent.ChangeWeight(it)) },
-                        lengthValue = catch.length,
-                        lengthValueChange = { viewModel.onEvent(CheckCatchEvent.ChangeLength(it)) },
-                        selectedSpecies = catch.species,
-                        onSpeciesSelected = { viewModel.onEvent(CheckCatchEvent.SelectSpecies(it)) },
-                        modifier = Modifier,
-                        enabled = state.isEditingCatch
+            if (state.isLoadingCatch) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.secondaryContainer
+                )
+            } else {
+                val catch = state.catch ?: CatchUi()
+                CatchEditor(
+                    nameValue = catch.name,
+                    nameValueChange = { viewModel.onEvent(CheckCatchEvent.ChangeName(it)) },
+                    weightValue = catch.weight,
+                    weightValueChange = { viewModel.onEvent(CheckCatchEvent.ChangeWeight(it)) },
+                    lengthValue = catch.length,
+                    lengthValueChange = { viewModel.onEvent(CheckCatchEvent.ChangeLength(it)) },
+                    selectedSpecies = catch.species,
+                    onSpeciesSelected = { viewModel.onEvent(CheckCatchEvent.SelectSpecies(it)) },
+                    modifier = Modifier,
+                    enabled = state.isEditingCatch
+                )
+
+                // Show the image if available
+                // Use AsyncImage to load and display the image
+                if (state.catch?.imageUri != null) {
+                    AsyncImage(
+                        model = state.catch!!.imageUri,
+                        contentDescription = "Catch Image",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                            .height(200.dp), // Adjust the height and padding as needed
+                        alignment = Alignment.Center
                     )
                 }
             }

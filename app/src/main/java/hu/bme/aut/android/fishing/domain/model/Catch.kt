@@ -9,6 +9,6 @@ data class Catch(
     val length: String = "",
     val dueDate: Date? = null,
     val species: Species = Species.NONE,
-    val imageURL: String = "",
+    val imageUri: String = "",
     val userId: String = ""
 )

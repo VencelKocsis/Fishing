@@ -12,8 +12,6 @@ import hu.bme.aut.android.fishing.ui.model.SpeciesUi
 import hu.bme.aut.android.fishing.ui.model.asCatch
 import hu.bme.aut.android.fishing.ui.model.toUiText
 import hu.bme.aut.android.fishing.util.UiEvent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -67,7 +65,7 @@ class AddCatchViewModel @Inject constructor(
             is AddCatchEvent.CaptureImage -> {
                 val uri = Uri.parse(event.uri)
                 _state.update { it.copy(
-                    catch = it.catch.copy(imageURL = uri.toString()),  // Ensure URI is stored inside `catch`
+                    catch = it.catch.copy(imageUri = uri.toString()),  // Ensure URI is stored inside `catch`
                     imageUri = uri  // Also update `imageUri` in state
                 ) }
                 Log.d("AddCatchViewModel", "Image URI updated: $uri")
@@ -87,16 +85,22 @@ class AddCatchViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val imageUri = state.value.imageUri
-                val catchUi = state.value.catch.asCatch()  // Convert to Catch domain model
+                val catchUi = state.value.catch.asCatch()
                 Log.d("AddCatchViewModel", "Saving catch with image URI: $imageUri")
-                Log.d("AddCatchViewModel", "Catch to save: $catchUi")
 
-                // Upload the image if it exists
-                val imageUrl = imageUri?.let { catchesUseCases.uploadImage(it) } ?: ""
-                val updatedCatch = catchUi.copy(imageURL = imageUrl)
+                // Upload the image if it exists, and track progress
+                val imageUrl = imageUri?.let {
+                    catchesUseCases.uploadImage(it) { progress ->
+                        _state.update { currentState ->
+                            currentState.copy(uploadProgress = progress)  // Update progress state
+                        }
+                    }
+                } ?: ""
+
+                val updatedCatch = catchUi.copy(imageUri = imageUrl)
                 Log.d("AddCatchViewModel", "Updated catch with image URL: $imageUrl")
 
-                catchesUseCases.addCatch(updatedCatch, imageUri)  // Pass the updated Catch domain model
+                catchesUseCases.addCatch(updatedCatch, imageUrl)
                 _uiEvent.send(UiEvent.Success())
             } catch (e: Exception) {
                 _state.update { it.copy(error = e, isError = true) }
@@ -110,7 +114,8 @@ data class AddCatchState(
     val error: Throwable? = null,
     val isError: Boolean = error != null,
     val catch: CatchUi = CatchUi(),
-    val imageUri: Uri? = null
+    val imageUri: Uri? = null,
+    val uploadProgress: Float = 0f
 )
 
 sealed class AddCatchEvent {

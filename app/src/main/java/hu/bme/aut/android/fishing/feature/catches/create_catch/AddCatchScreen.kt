@@ -24,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
@@ -153,6 +154,15 @@ fun AddCatchScreen(
                 contentScale = ContentScale.Crop
             )
             Log.d("AddCatchScreen", "Image URI for AsyncImage: $imageUri")
+
+            // Display progress bar if image is being uploaded
+            if (state.uploadProgress > 0f && state.uploadProgress < 1f) {
+                LinearProgressIndicator(
+                    progress = state.uploadProgress,
+                    modifier = Modifier
+                        .fillMaxWidth().padding(16.dp)
+                )
+            }
         }
     }
 

@@ -1,7 +1,6 @@
 package hu.bme.aut.android.fishing.ui.model
 
 import hu.bme.aut.android.fishing.domain.model.Catch
-import hu.bme.aut.android.fishing.domain.model.Species
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -13,7 +12,7 @@ data class CatchUi(
     val length: String = "",
     val dueDate: String = "",
     val species: SpeciesUi = SpeciesUi.None,
-    val imageURL: String = "",
+    val imageUri: String = "",
     val userId: String = ""
 )
 
@@ -39,7 +38,7 @@ fun Catch.asCatchUi(): CatchUi = CatchUi(
         SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(it)
     } ?: "",
     species = species.asSpeciesUi(),
-    imageURL = imageURL,
+    imageUri = imageUri,
     userId = userId
 )
 
@@ -50,6 +49,6 @@ fun CatchUi.asCatch(): Catch = Catch(
     length = length,
     dueDate = dueDate.toDateOrNull(),
     species = species.asSpecies(),
-    imageURL = imageURL,
+    imageUri = imageUri,
     userId = userId
 )

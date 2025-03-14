@@ -1,23 +1,29 @@
 package hu.bme.aut.android.fishing.data.catches.firebase
 
+import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.dataObjects
 import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import dagger.hilt.android.internal.Contexts.getApplication
 import hu.bme.aut.android.fishing.data.catches.CatchService
 import hu.bme.aut.android.fishing.domain.model.Catch
 import hu.bme.aut.android.fishing.domain.usecases.auth.CurrentUserIdUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 
 class FirebaseCatchService @Inject constructor(
     private val firestore: FirebaseFirestore,
     private val storage: FirebaseStorage,
-    private val userIdUseCase: CurrentUserIdUseCase,
+    private val userIdUseCase: CurrentUserIdUseCase
 ) : CatchService {
 
     override suspend fun catches(): Flow<List<Catch>> =
@@ -36,15 +42,15 @@ class FirebaseCatchService @Inject constructor(
     override suspend fun getCatchById(id: String): Catch? =
         firestore.collection(CATCHES_COLLECTION).document(id).get().await().toObject<FirebaseCatch>()?.asCatch()
 
-    override suspend fun addCatch(catch: Catch, imageUri: Uri?) {
-        val imageUrl = imageUri?.let { uploadImage(it) } ?: ""
-        val firebaseCatch = catch.copy(imageURL = imageUrl).asFirebaseCatch()
+    // Updated addCatch method
+    override suspend fun addCatch(catch: Catch, imageUri: String) {
+        val firebaseCatch = catch.copy(imageUri = imageUri).asFirebaseCatch()
         firestore.collection(CATCHES_COLLECTION).add(firebaseCatch).await()
     }
 
-    override suspend fun updateCatch(catch: Catch, imageUri: Uri?) {
-        val imageUrl = imageUri?.let { uploadImage(it) } ?: catch.imageURL
-        val updatedCatch = catch.copy(imageURL = imageUrl).asFirebaseCatch()
+    // Updated updateCatch method
+    override suspend fun updateCatch(catch: Catch, imageUri: String) {
+        val updatedCatch = catch.copy(imageUri = imageUri).asFirebaseCatch()
         firestore.collection(CATCHES_COLLECTION).document(catch.id).set(updatedCatch).await()
     }
 
@@ -52,19 +58,73 @@ class FirebaseCatchService @Inject constructor(
         firestore.collection(CATCHES_COLLECTION).document(id).delete().await()
     }
 
-    override suspend fun uploadImage(imageUri: Uri): String? {
-        return try {
-            val fileName = "catch_${System.currentTimeMillis()}.jpg"
-            val storageRef = storage.reference.child("catch_images/${fileName}")
+    override suspend fun uploadImage(imageUri: Uri, onProgress: (Float) -> Unit): String {
+        try {
+            // Create a storage reference from our app
+            val storageRef = storage.reference
 
-            // Upload the image to Firebase Storage
-            val uploadTask = storageRef.putFile(imageUri).await()
-            val downloadUrl = storageRef.downloadUrl.await().toString()
-            Log.d("FirebaseCatchService", "Image upload successful. Download URL: $downloadUrl")
-            downloadUrl
+            // Create a reference with an initial file path and name
+            val imageRef =
+                storageRef.child("catch_images/${System.currentTimeMillis()}_${imageUri.lastPathSegment}")
+
+            // Upload the file
+            val uploadTask = imageRef.putFile(imageUri)
+
+            // Listen for state changes, errors, and completion of the upload
+            uploadTask.addOnProgressListener { snapshot ->
+                val progress =
+                    (100.0 * snapshot.bytesTransferred / snapshot.totalByteCount).toFloat() / 100
+                onProgress(progress)
+            }
+
+            // Wait for the upload to complete
+            val taskSnapshot = uploadTask.await()
+
+            // Get the download URL
+            val downloadUrl = taskSnapshot.storage.downloadUrl.await()
+            Log.d("UploadImage", "Image uploaded and URL: $downloadUrl")
+
+            // Example of creating a reference from an HTTPS URL
+            val httpsReference = storage.getReferenceFromUrl(downloadUrl.toString())
+            Log.d("UploadImage", "HTTPS Reference: $httpsReference")
+
+            // Example of creating a reference from a Google Cloud Storage URI
+            val gsReference =
+                storage.getReferenceFromUrl("gs://${storage.app.options.storageBucket}/${imageRef.path}")
+            Log.d("UploadImage", "GS Reference: $gsReference")
+
+            return downloadUrl.toString()
         } catch (e: Exception) {
-            Log.e("FirebaseCatchService", "Image upload failed", e)
-            null
+            Log.e("UploadImage", "Error during image upload", e)
+            throw e
+        }
+    }
+
+    override suspend fun downloadImage(imageUrl: String, onProgress: (Float) -> Unit): Uri? {
+        try {
+            Log.d("DownloadImage", "Starting download for: $imageUrl")
+
+            if (!imageUrl.startsWith("https://") && !imageUrl.startsWith("gs://")) {
+                throw IllegalArgumentException("Invalid Firebase Storage URL")
+            }
+
+            val storageReference = storage.getReferenceFromUrl(imageUrl)
+            val tempFile = File.createTempFile("download", "jpg")
+            val downloadTask = storageReference.getFile(tempFile)
+
+            downloadTask.addOnProgressListener { snapshot ->
+                val progress = (100.0 * snapshot.bytesTransferred / snapshot.totalByteCount).toFloat() / 100
+                Log.d("DownloadImage", "Progress: ${progress * 100}%")
+                onProgress(progress)
+            }
+
+            downloadTask.await()
+            Log.d("DownloadImage", "Download complete")
+
+            return Uri.fromFile(tempFile)
+        } catch (e: Exception) {
+            Log.e("DownloadImage", "Error during image download", e)
+            throw e
         }
     }
 
