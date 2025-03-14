@@ -10,5 +10,6 @@ class AllCatchesUseCases(
     val getCatchById: GetCatchByIdUseCase,
     val addCatch: AddCatchUseCase,
     val updateCatch: UpdateCatchUseCase,
-    val deleteCatch: DeleteCatchUseCase
+    val deleteCatch: DeleteCatchUseCase,
+    val uploadImage: UploadImageUseCase
 )

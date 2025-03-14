@@ -67,19 +67,14 @@ fun AddCatchScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-    var showCamera by remember { mutableStateOf(false) }
+    var showGallery by remember { mutableStateOf(false) }
     var imageUri by remember { mutableStateOf<Uri?>(state.imageUri) }
-    var currentPhotoPath by remember { mutableStateOf("") }
 
-    val cameraLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { success ->
-        if (success) {
-            Log.d("AddCatchScreen", "Image capture successful, path: $currentPhotoPath")
-            val file = File(currentPhotoPath)
-            imageUri = Uri.fromFile(file)
-            viewModel.onEvent(AddCatchEvent.CaptureImage(imageUri.toString()))
-            Log.d("AddCatchScreen", "Image URI updated: $imageUri")
-        } else {
-            Log.e("AddCatchScreen", "Image capture failed")
+    // Launcher for selecting image from gallery
+    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            imageUri = it
+            viewModel.onEvent(AddCatchEvent.CaptureImage(it.toString()))
         }
     }
 
@@ -143,7 +138,7 @@ fun AddCatchScreen(
             )
 
             IconButton(
-                onClick = { showCamera = true },
+                onClick = { showGallery = true },
                 modifier = Modifier.size(64.dp)
             ) {
                 Icon(imageVector = Icons.Default.AddAPhoto, contentDescription = "Take Picture")
@@ -151,9 +146,9 @@ fun AddCatchScreen(
 
             AsyncImage(
                 model = imageUri,
-                contentDescription = "Captured Image",
+                contentDescription = "Selected Image",
                 modifier = Modifier
-                    .size(128.dp)
+                    .size(512.dp)
                     .padding(16.dp),
                 contentScale = ContentScale.Crop
             )
@@ -161,37 +156,9 @@ fun AddCatchScreen(
         }
     }
 
-    // Request Permission and Open Camera
-    if (showCamera) {
-        RequestCameraPermission(
-            onPermissionGranted = {
-                Log.d("AddCatchScreen", "Camera permission granted")
-                val uri = createImageUri(context)
-                currentPhotoPath = uri.path ?: ""
-                imageUri = uri
-                Log.d("AddCatchScreen", "Launching camera with URI: $uri")
-                cameraLauncher.launch(uri)
-            },
-            onPermissionDenied = {
-                Log.e("AddCatchScreen", "Camera permission denied")
-                scope.launch {
-                    snackbarHostState.showSnackbar("Camera permission is required to take pictures.")
-                }
-            }
-        )
-        showCamera = false
+    // Open gallery to pick an image
+    if (showGallery) {
+        galleryLauncher.launch("image/*")  // Filter for images
+        showGallery = false
     }
-}
-
-fun createImageUri(context: Context): Uri {
-    val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-    val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-    val file = File(storageDir, "IMG_${timestamp}.jpg")
-    val uri = FileProvider.getUriForFile(
-        context,
-        "hu.bme.aut.android.fileprovider",
-        file
-    )
-    Log.d("AddCatchScreen", "Image file created at: $uri")
-    return uri
 }

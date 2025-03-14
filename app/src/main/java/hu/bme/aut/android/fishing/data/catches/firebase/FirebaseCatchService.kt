@@ -54,10 +54,15 @@ class FirebaseCatchService @Inject constructor(
 
     override suspend fun uploadImage(imageUri: Uri): String? {
         return try {
-            val storageRef = storage.reference.child("catch_images/${imageUri.lastPathSegment}")
-            storageRef.putFile(imageUri).await()
-            storageRef.downloadUrl.await().toString()
-        } catch (e : Exception) {
+            val fileName = "catch_${System.currentTimeMillis()}.jpg"
+            val storageRef = storage.reference.child("catch_images/${fileName}")
+
+            // Upload the image to Firebase Storage
+            val uploadTask = storageRef.putFile(imageUri).await()
+            val downloadUrl = storageRef.downloadUrl.await().toString()
+            Log.d("FirebaseCatchService", "Image upload successful. Download URL: $downloadUrl")
+            downloadUrl
+        } catch (e: Exception) {
             Log.e("FirebaseCatchService", "Image upload failed", e)
             null
         }

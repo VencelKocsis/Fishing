@@ -64,13 +64,6 @@ class AddCatchViewModel @Inject constructor(
                 ) }
             }
 
-            /*is AddCatchEvent.CaptureImage -> {
-                _state.update { it.copy(
-                    catch = it.catch.copy(imageURL = event.uri)
-                ) }
-                Log.d("AddCatchViewModel", "Image URI updated: ${event.uri}")
-            }*/
-
             is AddCatchEvent.CaptureImage -> {
                 val uri = Uri.parse(event.uri)
                 _state.update { it.copy(
@@ -90,32 +83,20 @@ class AddCatchViewModel @Inject constructor(
         }
     }
 
-    /*fun saveCatch() {
-        viewModelScope.launch {
-            try {
-                Log.d("AddCatchViewModel", "Saving catch with image URI: ${state.value.imageUri}")
-                CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
-                    catchesUseCases.addCatch(state.value.catch.asCatch(), state.value.imageUri)
-                }
-                _uiEvent.send(UiEvent.Success())
-            } catch (e: Exception) {
-                _state.update { it.copy(error = e, isError = true) }
-                _uiEvent.send(UiEvent.Failure(e.toUiText()))
-            }
-        }
-    }*/
-
     fun saveCatch() {
         viewModelScope.launch {
             try {
-                val updatedCatch = state.value.catch.copy(imageURL = state.value.imageUri.toString())  // Ensure imageURL is set
-                Log.d("AddCatchViewModel", "Saving catch with image URI: ${updatedCatch.imageURL}")
+                val imageUri = state.value.imageUri
+                val catchUi = state.value.catch.asCatch()  // Convert to Catch domain model
+                Log.d("AddCatchViewModel", "Saving catch with image URI: $imageUri")
+                Log.d("AddCatchViewModel", "Catch to save: $catchUi")
 
-                val imageUri: Uri? = state.value.imageUri  // Keep it as Uri?
+                // Upload the image if it exists
+                val imageUrl = imageUri?.let { catchesUseCases.uploadImage(it) } ?: ""
+                val updatedCatch = catchUi.copy(imageURL = imageUrl)
+                Log.d("AddCatchViewModel", "Updated catch with image URL: $imageUrl")
 
-                CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
-                    catchesUseCases.addCatch(updatedCatch.asCatch(), imageUri)  // Pass Uri instead of String
-                }
+                catchesUseCases.addCatch(updatedCatch, imageUri)  // Pass the updated Catch domain model
                 _uiEvent.send(UiEvent.Success())
             } catch (e: Exception) {
                 _state.update { it.copy(error = e, isError = true) }
