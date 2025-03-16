@@ -99,25 +99,23 @@ class CheckCatchViewModel @Inject constructor(
         viewModelScope.launch {
             _state.update { it.copy(isLoadingCatch = true) }
             try {
-                CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
-                    val catch = catchesUseCases.getCatchById(catchId)!!.asCatchUi()
+                val catch = catchesUseCases.getCatchById(catchId)!!.asCatchUi()
+                _state.update { it.copy(catch = catch) }
 
-                    if (!catch.imageUri.isNullOrEmpty()) {
-                        // Pass the progress callback to handle the progress updates
-                        catchesUseCases.downloadImage(catch.imageUri!!) { progress ->
+                if (!catch.imageUri.isNullOrEmpty()) {
+                    launch(Dispatchers.IO) {
+                        catchesUseCases.downloadImage(catch.imageUri) { progress ->
                             _state.update { currentState ->
-                                currentState.copy(uploadProgress = progress)  // Update the progress in the state
+                                currentState.copy(uploadProgress = progress)
                             }
+                        }.let { imageUri ->
+                            _state.update { it.copy(isLoadingCatch = false, imageUri = imageUri) }
                         }
-                        // After download, update the imageUri in the state
-                        val imageUri = catchesUseCases.downloadImage(catch.imageUri!!) { progress ->
-                            // Continue reporting progress while downloading
-                        }
-                        _state.update { it.copy(isLoadingCatch = false, catch = catch, imageUri = imageUri) }
-                    } else {
-                        _state.update { it.copy(isLoadingCatch = false, catch = catch) }
                     }
+                } else {
+                    _state.update { it.copy(isLoadingCatch = false) }
                 }
+
             } catch (e: Exception) {
                 _uiEvent.send(UiEvent.Failure(e.toUiText()))
             }
