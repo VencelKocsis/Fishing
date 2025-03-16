@@ -1,6 +1,9 @@
 package hu.bme.aut.android.fishing.feature.catches.check_catch
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -117,9 +120,14 @@ fun CheckCatchScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (state.isLoadingCatch) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.secondaryContainer
-                )
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.secondaryContainer
+                    )
+                }
             } else {
                 val catch = state.catch ?: CatchUi()
                 CatchEditor(
@@ -135,8 +143,6 @@ fun CheckCatchScreen(
                     enabled = state.isEditingCatch
                 )
 
-                // Show the image if available
-                // Use AsyncImage to load and display the image
                 if (state.catch?.imageUri != null) {
                     AsyncImage(
                         model = state.catch!!.imageUri,
@@ -144,7 +150,7 @@ fun CheckCatchScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
-                            .height(200.dp), // Adjust the height and padding as needed
+                            .height(200.dp),
                         alignment = Alignment.Center
                     )
                 }
