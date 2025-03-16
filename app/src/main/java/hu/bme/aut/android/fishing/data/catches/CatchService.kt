@@ -14,4 +14,5 @@ interface CatchService {
     suspend fun deleteCatch(id: String)
     suspend fun uploadImage(imageUri: Uri, onProgress: (Float) -> Unit): String
     suspend fun downloadImage(imageUrl: String, onProgress: (Float) -> Unit): Uri?
+    suspend fun deleteImage(imageUrl: String)
 }

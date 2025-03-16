@@ -1,15 +1,11 @@
 package hu.bme.aut.android.fishing.data.catches.firebase
 
-import android.app.Application
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.dataObjects
 import com.google.firebase.firestore.toObject
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.StorageReference
-import dagger.hilt.android.internal.Contexts.getApplication
 import hu.bme.aut.android.fishing.data.catches.CatchService
 import hu.bme.aut.android.fishing.domain.model.Catch
 import hu.bme.aut.android.fishing.domain.usecases.auth.CurrentUserIdUseCase
@@ -17,7 +13,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import java.io.File
-import java.io.FileOutputStream
 import javax.inject.Inject
 
 class FirebaseCatchService @Inject constructor(
@@ -103,6 +98,10 @@ class FirebaseCatchService @Inject constructor(
 
     override suspend fun downloadImage(imageUrl: String, onProgress: (Float) -> Unit): Uri? {
         try {
+            if(imageUrl == "null" || imageUrl.isEmpty()) {
+                return null
+            }
+
             Log.d("DownloadImage", "Starting download for: $imageUrl")
 
             if (!imageUrl.startsWith("https://") && !imageUrl.startsWith("gs://")) {
@@ -125,6 +124,24 @@ class FirebaseCatchService @Inject constructor(
             return Uri.fromFile(tempFile)
         } catch (e: Exception) {
             Log.e("DownloadImage", "Error during image download", e)
+            throw e
+        }
+    }
+
+    override suspend fun deleteImage(imageUrl: String) {
+        try {
+            Log.d("DeleteImage", "Starting deletion for: $imageUrl")
+
+            if (!imageUrl.startsWith("https://") && !imageUrl.startsWith("gs://")) {
+                throw IllegalArgumentException("Invalid Firebase Storage URL")
+            }
+
+            val storageReference = storage.getReferenceFromUrl(imageUrl)
+            storageReference.delete().await()
+            Log.d("DeleteImage", "Image deleted successfully")
+
+        } catch (e: Exception) {
+            Log.e("DeleteImage", "Error during image deletion", e)
             throw e
         }
     }

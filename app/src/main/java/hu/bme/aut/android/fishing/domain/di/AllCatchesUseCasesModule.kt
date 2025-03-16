@@ -9,6 +9,7 @@ import hu.bme.aut.android.fishing.domain.usecases.catches.AddCatchUseCase
 import hu.bme.aut.android.fishing.domain.usecases.catches.AllCatchesUseCases
 import hu.bme.aut.android.fishing.domain.usecases.catches.CatchesUseCase
 import hu.bme.aut.android.fishing.domain.usecases.catches.DeleteCatchUseCase
+import hu.bme.aut.android.fishing.domain.usecases.catches.DeleteImageUseCase
 import hu.bme.aut.android.fishing.domain.usecases.catches.DownloadImageUseCase
 import hu.bme.aut.android.fishing.domain.usecases.catches.GetCatchByIdUseCase
 import hu.bme.aut.android.fishing.domain.usecases.catches.GetCatchesByNameUseCase
@@ -65,6 +66,10 @@ object AllCatchesUseCasesModule {
     fun provideDownloadImageUseCase(repository: CatchService): DownloadImageUseCase =
         DownloadImageUseCase(repository)
 
+    @Provides
+    @Singleton
+    fun provideDeleteImageUseCase(repository: CatchService): DeleteImageUseCase =
+        DeleteImageUseCase(repository)
 
     @Provides
     @Singleton
@@ -78,7 +83,8 @@ object AllCatchesUseCasesModule {
         updateCatch: UpdateCatchUseCase,
         deleteCatch: DeleteCatchUseCase,
         uploadImage: UploadImageUseCase,
-        downloadImage: DownloadImageUseCase
+        downloadImage: DownloadImageUseCase,
+        deleteImage: DeleteImageUseCase
     ): AllCatchesUseCases = AllCatchesUseCases(
         repository,
         catches,
@@ -89,6 +95,7 @@ object AllCatchesUseCasesModule {
         updateCatch,
         deleteCatch,
         uploadImage,
-        downloadImage
+        downloadImage,
+        deleteImage
     )
 }

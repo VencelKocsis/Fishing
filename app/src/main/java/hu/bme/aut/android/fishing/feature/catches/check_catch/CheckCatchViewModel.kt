@@ -1,6 +1,7 @@
 package hu.bme.aut.android.fishing.feature.catches.check_catch
 
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -80,6 +81,12 @@ class CheckCatchViewModel @Inject constructor(
                 ) }
             }
 
+            is CheckCatchEvent.DeleteImage -> {
+                deleteImage(imageUri = event.imageUri)
+                _state.update { it.copy(imageUri = null) }
+                updateCatch()
+            }
+
             CheckCatchEvent.UpdateCatch -> {
                 updateCatch()
             }
@@ -92,6 +99,16 @@ class CheckCatchViewModel @Inject constructor(
 
     init {
         load()
+    }
+
+    private fun deleteImage(imageUri: String) {
+        viewModelScope.launch {
+            try {
+                catchesUseCases.deleteImage(imageUri)
+            } catch (e : Exception) {
+                _uiEvent.send(UiEvent.Failure(e.toUiText()))
+            }
+        }
     }
 
     private fun load() {
@@ -181,4 +198,5 @@ sealed class CheckCatchEvent {
     data class SelectSpecies(val species: SpeciesUi): CheckCatchEvent()
     object UpdateCatch: CheckCatchEvent()
     object DeleteCatch: CheckCatchEvent()
+    data class DeleteImage(val imageUri: String): CheckCatchEvent()
 }
