@@ -2,8 +2,6 @@ package hu.bme.aut.android.fishing.feature.catches.create_catch
 
 import android.net.Uri
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,6 +38,8 @@ import coil.compose.AsyncImage
 import hu.bme.aut.android.fishing.R
 import hu.bme.aut.android.fishing.ui.common.CatchAppBar
 import hu.bme.aut.android.fishing.ui.common.CatchEditor
+import hu.bme.aut.android.fishing.ui.common.CatchImagePicker
+import hu.bme.aut.android.fishing.ui.model.toImageStateUi
 import hu.bme.aut.android.fishing.util.UiEvent
 import kotlinx.coroutines.launch
 
@@ -56,14 +56,6 @@ fun AddCatchScreen(
 
     var showGallery by remember { mutableStateOf(false) }
     var imageUri by remember { mutableStateOf<Uri?>(state.imageUri) }
-
-    // Launcher for selecting image from gallery
-    val galleryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            imageUri = it
-            viewModel.onEvent(AddCatchEvent.CaptureImage(it.toString()))
-        }
-    }
 
     LaunchedEffect(key1 = Unit) {
         viewModel.uiEvent.collect { event ->
@@ -124,24 +116,17 @@ fun AddCatchScreen(
                     .padding(10.dp)
             )
 
-            IconButton(
-                onClick = { showGallery = true },
-                modifier = Modifier.size(64.dp)
-            ) {
-                Icon(imageVector = Icons.Default.AddAPhoto, contentDescription = "Take Picture")
-            }
-
-            AsyncImage(
-                model = imageUri,
-                contentDescription = "Selected Image",
-                modifier = Modifier
-                    .size(512.dp)
-                    .padding(16.dp),
-                contentScale = ContentScale.Crop
+            CatchImagePicker(
+                imageState = state.toImageStateUi(),
+                isEditing = true,
+                onImageSelected = { uri ->
+                    uri?.let { viewModel.onEvent(AddCatchEvent.CaptureImage(it.toString())) }
+                },
+                onImageDeleted = {
+                    viewModel.onEvent(AddCatchEvent.DeleteImage(""))
+                }
             )
-            Log.d("AddCatchScreen", "Image URI for AsyncImage: $imageUri")
 
-            // Display progress bar if image is being uploaded
             if (state.uploadProgress > 0f && state.uploadProgress < 1f) {
                 LinearProgressIndicator(
                     progress = state.uploadProgress,
@@ -150,11 +135,5 @@ fun AddCatchScreen(
                 )
             }
         }
-    }
-
-    // Open gallery to pick an image
-    if (showGallery) {
-        galleryLauncher.launch("image/*")  // Filter for images
-        showGallery = false
     }
 }

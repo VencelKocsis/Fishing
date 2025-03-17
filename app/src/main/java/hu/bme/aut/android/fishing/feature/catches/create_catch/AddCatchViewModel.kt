@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.bme.aut.android.fishing.domain.usecases.auth.AllAuthenticationUseCases
 import hu.bme.aut.android.fishing.domain.usecases.catches.AllCatchesUseCases
+import hu.bme.aut.android.fishing.ui.model.CatchImageStateUi
 import hu.bme.aut.android.fishing.ui.model.CatchUi
 import hu.bme.aut.android.fishing.ui.model.SpeciesUi
 import hu.bme.aut.android.fishing.ui.model.asCatch
@@ -65,10 +66,16 @@ class AddCatchViewModel @Inject constructor(
             is AddCatchEvent.CaptureImage -> {
                 val uri = Uri.parse(event.uri)
                 _state.update { it.copy(
-                    catch = it.catch.copy(imageUri = uri.toString()),  // Ensure URI is stored inside `catch`
-                    imageUri = uri  // Also update `imageUri` in state
+                    catch = it.catch.copy(imageUri = uri.toString()),
+                    imageUri = uri
                 ) }
-                Log.d("AddCatchViewModel", "Image URI updated: $uri")
+            }
+
+            is AddCatchEvent.DeleteImage -> {
+                _state.update { it.copy(
+                    catch = it.catch.copy(imageUri = ""),
+                    imageUri = null
+                ) }
             }
 
             AddCatchEvent.SaveCatch -> {
@@ -126,4 +133,5 @@ sealed class AddCatchEvent {
     data class ChangeLength(val length: String) : AddCatchEvent()
     data class SelectSpecies(val species: SpeciesUi) : AddCatchEvent()
     data class CaptureImage(val uri: String) : AddCatchEvent()
+    data class DeleteImage(val uri: String) : AddCatchEvent()
 }

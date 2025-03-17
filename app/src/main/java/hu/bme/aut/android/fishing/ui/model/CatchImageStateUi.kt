@@ -11,14 +11,14 @@ data class CatchImageStateUi(
     val isUploadedImage: Boolean
 )
 
-/*fun AddCatchState.toImageUiModel(): CatchImageStateUi {
+fun AddCatchState.toImageStateUi(): CatchImageStateUi {
     return CatchImageStateUi(
         imageUri = this.imageUri,
-        uploadedImageUri = this.catch?.imageUri,
-        isNewSelectedImage = this.isNewSelectedImage,
-        isUploadedImage = this.isUploadedImage
+        uploadedImageUri = this.catch.imageUri,
+        isNewSelectedImage = this.imageUri != null,
+        isUploadedImage = !this.catch.imageUri.isNullOrEmpty()
     )
-}*/
+}
 
 fun CheckCatchState.CatchImageStateUi(): CatchImageStateUi {
     return CatchImageStateUi(
@@ -28,5 +28,3 @@ fun CheckCatchState.CatchImageStateUi(): CatchImageStateUi {
         isUploadedImage = this.isUploadedImage
     )
 }
-
-
