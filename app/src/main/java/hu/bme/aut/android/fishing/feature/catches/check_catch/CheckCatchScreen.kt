@@ -4,8 +4,6 @@ import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -31,13 +29,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import hu.bme.aut.android.fishing.R
 import hu.bme.aut.android.fishing.ui.common.CatchAppBar
 import hu.bme.aut.android.fishing.ui.common.CatchEditor
+import hu.bme.aut.android.fishing.ui.common.CatchImagePicker
+import hu.bme.aut.android.fishing.ui.model.CatchImageStateUi
 import hu.bme.aut.android.fishing.ui.model.CatchUi
 import hu.bme.aut.android.fishing.util.UiEvent
 import kotlinx.coroutines.launch
@@ -144,30 +142,16 @@ fun CheckCatchScreen(
                     enabled = state.isEditingCatch
                 )
 
-                if(state.isEditingCatch) {
-                    IconButton(
-                        onClick = {
-                            viewModel.onEvent(CheckCatchEvent.DeleteImage(state.catch?.imageUri ?: ""))
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = null
-                        )
+                CatchImagePicker(
+                    imageState = state.CatchImageStateUi(),
+                    isEditing = state.isEditingCatch,
+                    onImageSelected = { uri ->
+                        viewModel.onEvent(CheckCatchEvent.SelectNewImage(uri))
+                    },
+                    onImageDeleted = {
+                        viewModel.onEvent(CheckCatchEvent.DeleteImage(state.catch?.imageUri ?: ""))
                     }
-                }
-
-                if (state.catch?.imageUri != null) {
-                    AsyncImage(
-                        model = state.catch!!.imageUri,
-                        contentDescription = "Catch Image",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .height(200.dp),
-                        alignment = Alignment.Center
-                    )
-                }
+                )
             }
         }
     }

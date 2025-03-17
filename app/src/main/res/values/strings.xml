@@ -40,4 +40,6 @@
     <string name="user_name">Felhasználó név</string>
     <string name="text_not_valid_email">nem megfelelő e-mail cím</string>
     <string name="text_passwords_not_match">jelszavak nem egyeznek</string>
+    <string name="text_no_image">Nincs kép</string>
+    <string name="add_photo">Fotó hozzáadása</string>
 </resources>

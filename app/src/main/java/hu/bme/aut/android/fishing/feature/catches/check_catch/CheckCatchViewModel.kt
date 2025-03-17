@@ -1,7 +1,6 @@
 package hu.bme.aut.android.fishing.feature.catches.check_catch
 
 import android.net.Uri
-import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -83,8 +82,18 @@ class CheckCatchViewModel @Inject constructor(
 
             is CheckCatchEvent.DeleteImage -> {
                 deleteImage(imageUri = event.imageUri)
-                _state.update { it.copy(imageUri = null) }
-                updateCatch()
+                _state.update { it.copy(
+                    catch = it.catch?.copy(imageUri = ""),
+                    imageUri = null,
+                    isUploadedImage = false
+                ) }
+            }
+
+            is CheckCatchEvent.SelectNewImage -> {
+                _state.update { it.copy(
+                    imageUri = event.imageUri,
+                    isNewSelectedImage = true
+                ) }
             }
 
             CheckCatchEvent.UpdateCatch -> {
@@ -105,6 +114,14 @@ class CheckCatchViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 catchesUseCases.deleteImage(imageUri)
+                _state.update {
+                    it.copy(
+                        catch = it.catch?.copy(imageUri = ""),
+                        imageUri = null,
+                        isUploadedImage = false,
+                        isNewSelectedImage = false
+                    )
+                }
             } catch (e : Exception) {
                 _uiEvent.send(UiEvent.Failure(e.toUiText()))
             }
@@ -119,18 +136,31 @@ class CheckCatchViewModel @Inject constructor(
                 val catch = catchesUseCases.getCatchById(catchId)!!.asCatchUi()
                 _state.update { it.copy(catch = catch) }
 
-                if (!catch.imageUri.isNullOrEmpty()) {
+                if (catch.imageUri.isNotEmpty()) {
                     launch(Dispatchers.IO) {
                         catchesUseCases.downloadImage(catch.imageUri) { progress ->
                             _state.update { currentState ->
                                 currentState.copy(uploadProgress = progress)
                             }
                         }.let { imageUri ->
-                            _state.update { it.copy(isLoadingCatch = false, imageUri = imageUri) }
+                            _state.update {
+                                it.copy(
+                                    isLoadingCatch = false,
+                                    imageUri = imageUri,
+                                    isUploadedImage = imageUri != null,
+                                    isNewSelectedImage = false
+                                )
+                            }
                         }
                     }
                 } else {
-                    _state.update { it.copy(isLoadingCatch = false) }
+                    _state.update {
+                        it.copy(
+                            isLoadingCatch = false,
+                            isUploadedImage = false,
+                            imageUri = null
+                        )
+                    }
                 }
 
             } catch (e: Exception) {
@@ -139,27 +169,38 @@ class CheckCatchViewModel @Inject constructor(
         }
     }
 
-    private fun updateCatch() {
+    private fun updateCatch(isNavigateBack: Boolean = true, isImageUpload: Boolean = true) {
         viewModelScope.launch {
             try {
                 val imageUri = state.value.imageUri
-                val catchUi = state.value.catch?.asCatch()
+                var imageUrl: String? = null
 
-                // Upload the image if it exists, and track progress
-                val imageUrl = imageUri?.let {
-                    catchesUseCases.uploadImage(it) { progress ->
-                        _state.update { currentState ->
-                            currentState.copy(uploadProgress = progress)  // Update progress state
+                if(isImageUpload && state.value.isNewSelectedImage) {
+                    imageUrl = imageUri?.let {
+                        catchesUseCases.uploadImage(it) { progress ->
+                            _state.update { currentState ->
+                                currentState.copy(uploadProgress = progress,
+                                    isUploadedImage = true
+                                )
+                            }
                         }
                     }
-                } ?: ""
-
-                val updatedCatch = catchUi?.copy(imageUri = imageUrl)
+                } else {
+                    imageUrl = state.value.catch?.imageUri
+                }
 
                 CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
-                    catchesUseCases.updateCatch(state.value.catch!!.asCatch(), imageUri.toString())
+                    catchesUseCases.updateCatch(
+                        state.value.catch!!.copy(imageUri = imageUrl.toString()).asCatch(),
+                        imageUrl.toString()
+                    )
                 }
-                _uiEvent.send(UiEvent.Success())
+
+                _state.update { it.copy(isNewSelectedImage = false) }
+
+                if(isNavigateBack) {
+                    _uiEvent.send(UiEvent.Success())
+                }
             } catch (e : Exception) {
                 _uiEvent.send(UiEvent.Failure(e.toUiText()))
             }
@@ -171,6 +212,13 @@ class CheckCatchViewModel @Inject constructor(
             try {
                 CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
                     catchesUseCases.deleteCatch(state.value.catch!!.id)
+                }
+                _state.update {
+                    it.copy(
+                        isUploadedImage = false,
+                        isNewSelectedImage = false,
+                        imageUri = null
+                    )
                 }
                 _uiEvent.send(UiEvent.Success())
             } catch (e : Exception) {
@@ -184,6 +232,8 @@ data class CheckCatchState(
     val catch: CatchUi? = null,
     val isLoadingCatch: Boolean = false,
     val isEditingCatch: Boolean = false,
+    val isUploadedImage: Boolean = false,
+    val isNewSelectedImage: Boolean = false,
     val error: Throwable? = null,
     val imageUri: Uri? = null,
     val uploadProgress: Float = 0f
@@ -199,4 +249,5 @@ sealed class CheckCatchEvent {
     object UpdateCatch: CheckCatchEvent()
     object DeleteCatch: CheckCatchEvent()
     data class DeleteImage(val imageUri: String): CheckCatchEvent()
+    data class SelectNewImage(val imageUri: Uri?): CheckCatchEvent()
 }
