@@ -79,18 +79,5 @@ fun CatchImagePicker(
                 }
             }
         }
-
-        // Show close button when editing and an image is present
-        if (isEditing && (imageState.imageUri != null || imageState.isUploadedImage)) {
-            IconButton(
-                onClick = { onImageDeleted() },
-                modifier = Modifier.align(Alignment.TopEnd)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Remove Image"
-                )
-            }
-        }
     }
 }

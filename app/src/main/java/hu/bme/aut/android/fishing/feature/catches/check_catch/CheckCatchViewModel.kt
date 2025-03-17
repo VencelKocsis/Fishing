@@ -217,6 +217,7 @@ class CheckCatchViewModel @Inject constructor(
             try {
                 CoroutineScope(coroutineContext).launch(Dispatchers.IO) {
                     catchesUseCases.deleteCatch(state.value.catch!!.id)
+                    catchesUseCases.deleteImage(state.value.catch!!.imageUri)
                 }
                 _state.update {
                     it.copy(

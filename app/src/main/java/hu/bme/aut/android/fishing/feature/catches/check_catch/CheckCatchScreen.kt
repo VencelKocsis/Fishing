@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -15,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -29,6 +32,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hu.bme.aut.android.fishing.R
@@ -152,6 +156,18 @@ fun CheckCatchScreen(
                         viewModel.onEvent(CheckCatchEvent.DeleteImage(state.catch?.imageUri ?: ""))
                     }
                 )
+
+                if (state.uploadProgress > 0f && state.uploadProgress < 1f) {
+                    LinearProgressIndicator(
+                        progress = { state.uploadProgress },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp) // Increase height
+                            .padding(horizontal = 16.dp/*, vertical = 8.dp*/),
+                        color = MaterialTheme.colorScheme.primary, // Customize color
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant, // Customize track color
+                    )
+                }
             }
         }
     }

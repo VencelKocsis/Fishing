@@ -1,18 +1,14 @@
 package hu.bme.aut.android.fishing.feature.catches.create_catch
 
-import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -21,20 +17,15 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import hu.bme.aut.android.fishing.R
 import hu.bme.aut.android.fishing.ui.common.CatchAppBar
 import hu.bme.aut.android.fishing.ui.common.CatchEditor
@@ -53,9 +44,6 @@ fun AddCatchScreen(
     val snackbarHostState = SnackbarHostState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-
-    var showGallery by remember { mutableStateOf(false) }
-    var imageUri by remember { mutableStateOf<Uri?>(state.imageUri) }
 
     LaunchedEffect(key1 = Unit) {
         viewModel.uiEvent.collect { event ->
@@ -129,9 +117,13 @@ fun AddCatchScreen(
 
             if (state.uploadProgress > 0f && state.uploadProgress < 1f) {
                 LinearProgressIndicator(
-                    progress = state.uploadProgress,
+                    progress = { state.uploadProgress },
                     modifier = Modifier
-                        .fillMaxWidth().padding(16.dp)
+                        .fillMaxWidth()
+                        .height(6.dp) // Increase height
+                        .padding(horizontal = 16.dp/*, vertical = 8.dp*/),
+                    color = MaterialTheme.colorScheme.primary, // Customize color
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant, // Customize track color
                 )
             }
         }
