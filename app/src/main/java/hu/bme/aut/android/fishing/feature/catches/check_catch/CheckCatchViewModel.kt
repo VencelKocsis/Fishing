@@ -172,11 +172,12 @@ class CheckCatchViewModel @Inject constructor(
     private fun updateCatch(isNavigateBack: Boolean = true, isImageUpload: Boolean = true) {
         viewModelScope.launch {
             try {
-                val imageUri = state.value.imageUri
+                val oldImageUri = state.value.catch?.imageUri
+                val newImageUri = state.value.imageUri
                 var imageUrl: String? = null
 
                 if(isImageUpload && state.value.isNewSelectedImage) {
-                    imageUrl = imageUri?.let {
+                    imageUrl = newImageUri?.let {
                         catchesUseCases.uploadImage(it) { progress ->
                             _state.update { currentState ->
                                 currentState.copy(uploadProgress = progress,
@@ -194,6 +195,10 @@ class CheckCatchViewModel @Inject constructor(
                         state.value.catch!!.copy(imageUri = imageUrl.toString()).asCatch(),
                         imageUrl.toString()
                     )
+                }
+
+                if(isImageUpload && state.value.isNewSelectedImage && oldImageUri != null && oldImageUri.isNotEmpty()) {
+                    catchesUseCases.deleteImage(oldImageUri)
                 }
 
                 _state.update { it.copy(isNewSelectedImage = false) }
